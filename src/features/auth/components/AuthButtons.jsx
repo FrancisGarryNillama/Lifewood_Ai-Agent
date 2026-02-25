@@ -80,7 +80,7 @@ export default function AuthButtons() {
           className="bg-gradient-to-r from-lifewood-castletonGreen to-lifewood-darkSerpent text-white px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 rounded-lg sm:rounded-xl font-medium flex items-center gap-1 sm:gap-2 hover:shadow-lg hover:shadow-lifewood-castletonGreen/25 transition-all text-sm md:text-base"
         >
           <UserPlus className="h-4 w-4" />
-          <span className="hidden xs:inline sm:inline">Request Account</span>
+          <span className="hidden xs:inline sm:inline">Register Account</span>
         </button>
       </div>
 

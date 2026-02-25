@@ -160,7 +160,7 @@ export function RegisterModal({ isOpen, onClose, onSuccess }) {
         <div className="inline-flex items-center justify-center bg-lifewood-castletonGreen rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-3 sm:mb-4">
           <UserPlus className="w-6 h-6 sm:w-8 sm:h-8 text-lifewood-white" />
         </div>
-        <h2 className="text-[1.5rem] sm:text-[2rem] font-bold text-lifewood-darkSerpent mb-1 sm:mb-2">Request Account</h2>
+        <h2 className="text-[1.5rem] sm:text-[2rem] font-bold text-lifewood-darkSerpent mb-1 sm:mb-2">Register Account</h2>
         <p className="text-[1rem] sm:text-[1.125rem] text-lifewood-darkSerpent/70">Submit details for administrator approval</p>
       </div>
 
