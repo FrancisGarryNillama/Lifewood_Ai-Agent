@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authApi } from '../../../api';
 import { useNotification } from '../../../hooks';
-import { useAuthContext, USER_ROLES } from '../../../context';
+import { useAuthContext } from '../../../context';
 
 export function useAuth() {
   const navigate = useNavigate();
@@ -20,18 +20,12 @@ export function useAuth() {
       if (result.success) {
         showSuccess('Login successful!');
 
-
-        // Navigate based on role
+        // Navigate to the page the user tried to access, or the Dashboard
         const from = location.state?.from;
-
-        if (from && from !== '/') {
-          navigate(from, { replace: true });
-        } else if (result.user?.role === USER_ROLES.STUDENT) {
-          navigate('/HomePage', { replace: true });
-        } else if (result.user?.role === USER_ROLES.FACULTY) {
-          navigate('/DepartmentHome', { replace: true });
+        if (from && from.pathname && from.pathname !== '/') {
+          navigate(from.pathname, { replace: true });
         } else {
-          showError('Unauthorized role');
+          navigate('/Dashboard', { replace: true });
         }
       } else {
         showError(result.error || 'Login failed');

@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react';
 import { profileApi } from '../../../api';
 import { useNotification } from '../../../hooks';
+import { USER_ROLES } from '../../../context';
 
 /**
  * Profile hook - Updated for new backend
  * Backend now uses snake_case and standardized APIResponse format
  * All data is pre-extracted via extractData() helper in API layer
  */
-export function useProfile(userId) {
+export function useProfile(userId, userRole) {
   const [profile, setProfile] = useState({
     user_id: userId || '',
     name: '',
@@ -28,6 +29,36 @@ export function useProfile(userId) {
    */
   useEffect(() => {
     if (!userId) return;
+
+    if (userRole === USER_ROLES.ADMIN) {
+      setProfile({
+        user_id: userId,
+        name: 'Lifewood Admin',
+        school_name: 'Lifewood AI',
+        email: 'admin@lifewood.com',
+        phone: '09170000000',
+        address: 'Lifewood HQ',
+        date_of_birth: '1990-01-01',
+      });
+      setProfileExists(true);
+      setCheckComplete(true);
+      return;
+    }
+
+    if (userRole === USER_ROLES.EMPLOYEE && userId === 'employee') {
+      setProfile({
+        user_id: userId,
+        name: 'Lifewood Employee',
+        school_name: 'Lifewood AI',
+        email: 'employee@lifewood.com',
+        phone: '09171111111',
+        address: 'Lifewood Office',
+        date_of_birth: '1995-01-01',
+      });
+      setProfileExists(true);
+      setCheckComplete(true);
+      return;
+    }
 
     const fetchProfile = async () => {
       setLoading(true);
@@ -67,7 +98,7 @@ export function useProfile(userId) {
     };
 
     fetchProfile();
-  }, [userId]);
+  }, [userId, userRole]);
 
   /**
    * Update a single profile field

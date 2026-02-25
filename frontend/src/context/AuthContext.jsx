@@ -5,8 +5,31 @@ import { tokenStorage } from '../utils/tokenStorage';
 
 // User roles constants
 export const USER_ROLES = {
-  STUDENT: 'Student',
-  FACULTY: 'Faculty',
+  ADMIN: 'Admin',
+  EMPLOYEE: 'Employee',
+};
+
+const STATIC_USERS = {
+  ADMIN: {
+    id: 0,
+    username: 'admin',
+    name: 'Lifewood Admin',
+    role: USER_ROLES.ADMIN,
+    email: 'admin@lifewood.com',
+    department: 'Administration',
+    phone: '09170000000',
+    address: 'Lifewood HQ',
+    date_of_birth: '1990-01-01',
+    school_name: 'Lifewood AI',
+  },
+  EMPLOYEE: {
+    id: 1,
+    username: 'employee',
+    name: 'Lifewood Employee',
+    role: USER_ROLES.EMPLOYEE,
+    email: 'employee@lifewood.com',
+    department: 'Operations',
+  },
 };
 
 // Create the context
@@ -162,20 +185,40 @@ export function AuthProvider({ children }) {
     dispatch({ type: 'SET_LOADING', payload: true });
 
     // --- STATIC LOGIN BYPASS ---
-    if (username === 'user' && password === 'user') {
-      const staticUser = { id: 1, name: 'Static User', role: USER_ROLES.STUDENT, email: 'user@example.com' };
-      dispatch({ type: 'LOGIN', payload: staticUser });
-      tokenStorage.setUserData(staticUser); // Persist static login
-      authSync.broadcastLogin(staticUser);
-      return { success: true, user: staticUser };
+    // Admin account
+    if (username === 'admin' && password === 'admin') {
+      dispatch({ type: 'LOGIN', payload: STATIC_USERS.ADMIN });
+      tokenStorage.setUserData(STATIC_USERS.ADMIN);
+      authSync.broadcastLogin(STATIC_USERS.ADMIN);
+      return { success: true, user: STATIC_USERS.ADMIN };
     }
 
-    if (username === 'admin' && password === 'admin') {
-      const staticAdmin = { id: 2, name: 'Static Admin', role: USER_ROLES.FACULTY, email: 'admin@example.com' };
-      dispatch({ type: 'LOGIN', payload: staticAdmin });
-      tokenStorage.setUserData(staticAdmin); // Persist static login
-      authSync.broadcastLogin(staticAdmin);
-      return { success: true, user: staticAdmin };
+    // Employee account
+    if (username === 'employee' && password === 'employee') {
+      dispatch({ type: 'LOGIN', payload: STATIC_USERS.EMPLOYEE });
+      tokenStorage.setUserData(STATIC_USERS.EMPLOYEE);
+      authSync.broadcastLogin(STATIC_USERS.EMPLOYEE);
+      return { success: true, user: STATIC_USERS.EMPLOYEE };
+    }
+
+    // Check localStorage approved accounts
+    const approvedAccounts = JSON.parse(localStorage.getItem('approvedAccounts') || '[]');
+    const match = approvedAccounts.find(
+      a => a.accountID === username && a.accountPass === password
+    );
+    if (match) {
+      const approvedUser = {
+        id: match.accountID,
+        username: match.fullName || match.accountID,
+        name: match.fullName || match.accountID,
+        role: USER_ROLES.EMPLOYEE,
+        email: match.email,
+        department: match.department,
+      };
+      dispatch({ type: 'LOGIN', payload: approvedUser });
+      tokenStorage.setUserData(approvedUser);
+      authSync.broadcastLogin(approvedUser);
+      return { success: true, user: approvedUser };
     }
     // ---------------------------
 
@@ -278,20 +321,6 @@ export function AuthProvider({ children }) {
   }, [state.user]);
 
   /**
-   * Check if user is a student
-   */
-  const isStudent = useCallback(() => {
-    return hasRole(USER_ROLES.STUDENT);
-  }, [hasRole]);
-
-  /**
-   * Check if user is faculty
-   */
-  const isFaculty = useCallback(() => {
-    return hasRole(USER_ROLES.FACULTY);
-  }, [hasRole]);
-
-  /**
    * Get current access token
    */
   const getToken = useCallback(() => {
@@ -317,8 +346,6 @@ export function AuthProvider({ children }) {
     logout,
     updateUser,
     hasRole,
-    isStudent,
-    isFaculty,
     getToken,
     clearError,
 

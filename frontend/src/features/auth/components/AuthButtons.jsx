@@ -16,11 +16,7 @@ export default function AuthButtons() {
   };
 
   const handleDashboardClick = () => {
-    if (user?.role === 'Student') {
-      navigate('/HomePage');
-    } else if (user?.role === 'Faculty') {
-      navigate('/DepartmentHome');
-    }
+    navigate('/Dashboard');
   };
 
   const handleLogout = () => {
@@ -34,10 +30,7 @@ export default function AuthButtons() {
         {/* User Info */}
         <div className="hidden sm:flex flex-col items-end mr-1">
           <span className="text-sm font-bold text-gray-800 leading-tight">
-            {user?.username}
-          </span>
-          <span className="text-xs font-medium text-lifewood-castletonGreen bg-lifewood-seaSalt px-2 py-0.5 rounded-full mt-0.5">
-            {user?.role}
+            {user?.username || user?.name || 'User'}
           </span>
         </div>
 

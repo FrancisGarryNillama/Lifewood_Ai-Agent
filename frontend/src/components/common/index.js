@@ -9,9 +9,4 @@ export { DataTable } from './Table/DataTable';
 export { TabNavigation } from './Tabs/TabNavigation';
 export { AdvancedSearchBar } from './SearchBar/AdvancedSearchBar';
 export { StatusBadge } from './Badge/StatusBadge';
-export { 
-  ProtectedRoute, 
-  StudentRoute, 
-  FacultyRoute, 
-  AuthenticatedRoute 
-} from './ProtectedRoute/ProtectedRoute';
+export { ProtectedRoute } from './ProtectedRoute/ProtectedRoute';

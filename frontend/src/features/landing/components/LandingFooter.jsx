@@ -1,5 +1,5 @@
 import React from 'react';
-import { GraduationCap, Heart, Github, Mail } from 'lucide-react';
+import { GraduationCap, Github, Mail } from 'lucide-react';
 
 export default function LandingFooter() {
   return (
@@ -27,11 +27,8 @@ export default function LandingFooter() {
 
           {/* Copyright */}
           <div className="text-center sm:text-right">
-            <p className="text-xs sm:text-sm text-gray-500 flex items-center justify-center sm:justify-end">
-              Made with <Heart className="h-3 w-3 sm:h-4 sm:w-4 mx-1 text-red-500" /> by CIT-U CCS
-            </p>
-            <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">
-              © 2024 Lifewood. All rights reserved.
+            <p className="text-xs sm:text-sm text-gray-500">
+              © {new Date().getFullYear()} Lifewood. All rights reserved.
             </p>
           </div>
         </div>

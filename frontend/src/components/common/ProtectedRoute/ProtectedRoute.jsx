@@ -1,32 +1,28 @@
 import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuthContext } from '../../../context';
+import { Loader } from '../Loader/Loader';
 
 /**
- * ProtectedRoute - Bypass for exploration
+ * ProtectedRoute - Enforces that a user is authenticated
  */
 export function ProtectedRoute({ children }) {
-  // BYPASS AUTHENTICATION: Allow free exploration of all pages
+  const { isAuthenticated, isLoading } = useAuthContext();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader size="lg" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
   return <>{children}</>;
-}
-
-/**
- * StudentRoute - Bypass for exploration
- */
-export function StudentRoute({ children }) {
-  return <ProtectedRoute>{children}</ProtectedRoute>;
-}
-
-/**
- * FacultyRoute - Bypass for exploration
- */
-export function FacultyRoute({ children }) {
-  return <ProtectedRoute>{children}</ProtectedRoute>;
-}
-
-/**
- * AuthenticatedRoute - Bypass for exploration
- */
-export function AuthenticatedRoute({ children }) {
-  return <ProtectedRoute>{children}</ProtectedRoute>;
 }
 
 export default ProtectedRoute;

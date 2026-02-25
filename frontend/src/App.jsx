@@ -1,15 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute } from './components/common';
+import { AuthProvider, NotificationProvider } from './context';
 import LandingPage from './pages/LandingPage';
-import { HomePage as StudentHome, StudentDocumentPage } from './pages/student';
+import Dashboard from './pages/Dashboard';
+import { StudentDocumentPage } from './pages/student';
 import {
-  DepartmentHome,
   DocumentPage,
   FinalDocumentPage,
   RequestPage,
 } from './pages/faculty';
-import { StudentRoute, FacultyRoute } from './components/common';
-import { AuthProvider, NotificationProvider } from './context';
 
 function AppContent() {
   return (
@@ -17,55 +17,47 @@ function AppContent() {
       {/* Public Route */}
       <Route path="/" element={<LandingPage />} />
 
-      {/* Protected Student Routes */}
+      {/* Protected Combined Dashboard */}
       <Route
-        path="/HomePage"
+        path="/Dashboard"
         element={
-          <StudentRoute>
-            <StudentHome />
-          </StudentRoute>
-        }
-      />
-      <Route
-        path="/student/finalDocument/:id"
-        element={
-          <StudentRoute>
-            <StudentDocumentPage />
-          </StudentRoute>
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
         }
       />
 
-      {/* Protected Faculty Routes */}
+      {/* Document and Request Routes */}
       <Route
-        path="/DepartmentHome"
+        path="/student/finalDocument/:id"
         element={
-          <FacultyRoute>
-            <DepartmentHome />
-          </FacultyRoute>
+          <ProtectedRoute>
+            <StudentDocumentPage />
+          </ProtectedRoute>
         }
       />
       <Route
         path="/request/:id"
         element={
-          <FacultyRoute>
+          <ProtectedRoute>
             <RequestPage />
-          </FacultyRoute>
+          </ProtectedRoute>
         }
       />
       <Route
         path="/document/:id"
         element={
-          <FacultyRoute>
+          <ProtectedRoute>
             <DocumentPage />
-          </FacultyRoute>
+          </ProtectedRoute>
         }
       />
       <Route
         path="/finalDocument/:id"
         element={
-          <FacultyRoute>
+          <ProtectedRoute>
             <FinalDocumentPage />
-          </FacultyRoute>
+          </ProtectedRoute>
         }
       />
 

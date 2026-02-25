@@ -38,7 +38,7 @@ export default function HomePage() {
   const { uploadOcr, loading, ocrResults } = useTorUpload();
 
   // Profile check
-  const { profileExists, loading: profileLoading, checkExists, checkComplete } = useProfile(userName);
+  const { profileExists, loading: profileLoading, checkExists, checkComplete } = useProfile(userName, user?.role);
   const { showError } = useNotification();
 
   // Auto-open profile for new users
@@ -248,6 +248,7 @@ export default function HomePage() {
 
         <ProfilePanel
           userId={userName}
+          userRole={user?.role}
           isOpen={profileModal.isOpen}
           onClose={profileModal.close}
           onSaveSuccess={checkExists}
