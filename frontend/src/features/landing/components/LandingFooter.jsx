@@ -9,7 +9,7 @@ export default function LandingFooter() {
           {/* Logo Section */}
           <div className="flex items-center justify-center sm:justify-start">
             <img
-              src="/assets/images/lifewood-logo.png"
+              src="/lifewood-logo.png"
               alt="Lifewood Logo"
               className="h-8 sm:h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
             />

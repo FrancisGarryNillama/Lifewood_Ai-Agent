@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Header, BackgroundLayout } from '../components/layout';
-import Sidebar from '../components/layout/Sidebar/Sidebar';
 
 // Upload features
 import {
@@ -277,7 +276,7 @@ function ReceiptImageModal({ row, onClose }) {
 }
 
 export default function Dashboard() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
     // Upload state
     const [uploadedImages, setUploadedImages] = useState([]);
@@ -747,11 +746,7 @@ export default function Dashboard() {
             {/* Page shell */}
             <div className="min-h-screen bg-lifewood-paper/60">
                 <div className="relative z-10">
-                    <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} userName={userName} />
-                    <Sidebar
-                        sidebarOpen={sidebarOpen}
-                        onOpenProfile={profileModal.open}
-                    />
+                    <Header userName={userName} onOpenProfile={profileModal.open} />
 
                     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 

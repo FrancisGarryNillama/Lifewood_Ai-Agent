@@ -215,16 +215,10 @@
   background: #FFB347;
 }
 
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #034E34 #F5EEDB;
-}
-
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: #034E34 rgba(245,238,219,0.5);
-}
+/* Firefox / Chrome 121+ — only applied when the browser supports the standard API */
+/* Firefox scrollbar styles are injected at runtime in `src/index.js` to avoid
+   static compat warnings from the CSS linter. WebKit scrollbar rules above
+   cover Safari and older Chromium browsers. */
 
 /* ── Lifewood Utility Classes ──────────────────────────────────────────────── */
 .lw-card {
