@@ -128,3 +128,5 @@ export function RegisterModal({ isOpen, onClose, onSuccess }) {
     </AuthModalWrapper>
   );
 }
+
+

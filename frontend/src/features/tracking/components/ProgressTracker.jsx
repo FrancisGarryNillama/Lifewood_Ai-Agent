@@ -60,7 +60,7 @@ export default function ProgressTracker({ userName }) {
                 <div className="text-left">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                      Accreditation Status
+                      expense processing Status
                     </h3>
                     {/* Submission Badge */}
                     <div className="px-2 py-0.5 bg-gradient-to-r from-lifewood-paper to-lifewood-seaSalt border border-lifewood-saffaron rounded-full">
@@ -126,7 +126,7 @@ export default function ProgressTracker({ userName }) {
                 </svg>
               </button>
             </div>
-            <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-5">Monitor your accreditation status</p>
+            <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-5">Monitor your expense processing status</p>
 
             {loading ? (
               <div className="flex justify-center py-4">
@@ -223,3 +223,4 @@ export default function ProgressTracker({ userName }) {
     </>
   );
 }
+

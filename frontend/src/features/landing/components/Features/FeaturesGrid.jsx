@@ -10,7 +10,7 @@ export default function FeaturesGrid() {
     {
       icon: CheckCircle,
       title: 'Simplified Process',
-      description: 'Standardizes course comparison and accreditation between institutions',
+      description: 'Standardizes course comparison and expense processing between institutions',
       color: 'green',
     },
     {
@@ -88,3 +88,4 @@ export default function FeaturesGrid() {
     </div>
   );
 }
+

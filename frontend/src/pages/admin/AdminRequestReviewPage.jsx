@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { GraduationCap } from 'lucide-react';
 import { Button, Loader, ConfirmDialog } from '../../components/common';
-import { profileApi, torApi, requestApi } from '../../api';
+import { profileApi, expenseApi, requestApi } from '../../api';
 import { useNotification } from '../../hooks';
 
 export default function AdminRequestReviewPage() {
@@ -24,8 +24,8 @@ export default function AdminRequestReviewPage() {
     try {
       const [profileData, citTorData, applicantTorData] = await Promise.all([
         profileApi.getProfile(id),
-        torApi.getCitTorContent(),
-        torApi.getCompareResultTor(id),
+        expenseApi.getCitTorContent(),
+        expenseApi.getCompareResultTor(id),
       ]);
 
       // Extract data from API responses
@@ -283,3 +283,5 @@ export default function AdminRequestReviewPage() {
     </div>
   );
 }
+
+

@@ -55,5 +55,7 @@ export const API_ENDPOINTS = {
   TRACK_USER_PROGRESS: '/track_user_progress/',
   PENDING_TRACK_PROGRESS: '/pendingRequest/track_user_progress/',
   FINAL_TRACK_PROGRESS: '/finalDocuments/track_user_progress/',
-  TRACKER_ACCREDITATION: '/tracker_accreditation/',
+  TRACKER_EXPENSE_PROCESSING: '/tracker_expense_processing/',
 };
+
+

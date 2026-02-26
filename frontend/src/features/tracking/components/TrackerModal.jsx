@@ -12,7 +12,7 @@ export default function TrackerModal({ isOpen, onClose, userName }) {
     const fetchTrackerData = async () => {
       setLoading(true);
       try {
-        const data = await trackingApi.getTrackerAccreditation(userName);
+        const data = await trackingApi.getTrackerExpenseProcessing(userName);
         setTrackerData(data);
       } catch (err) {
         console.error('Error fetching tracker data:', err);
@@ -28,7 +28,7 @@ export default function TrackerModal({ isOpen, onClose, userName }) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Tracker Accreditation"
+      title="Tracker expense processing"
       size="lg"
     >
       <ModalContent>
@@ -80,3 +80,4 @@ export default function TrackerModal({ isOpen, onClose, userName }) {
     </Modal>
   );
 }
+

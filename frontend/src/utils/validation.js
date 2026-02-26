@@ -20,3 +20,4 @@ export const validateFileSize = (file, maxSize = MAX_FILE_SIZE) => {
 export const validateRequired = (value) => {
   return value && value.toString().trim().length > 0;
 };
+

@@ -70,7 +70,7 @@ export default function SubmissionsList({ userName }) {
         <div className="mt-6 sm:mt-8 space-y-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-lifewood-darkSerpent to-lifewood-earthYellow bg-clip-text text-transparent">
-                    Your TOR Submissions
+                    Your Expense Submissions
                 </h2>
                 <span className="text-sm text-gray-500">
                     Most recent
@@ -202,7 +202,7 @@ export default function SubmissionsList({ userName }) {
                                             </div>
                                         </div>
 
-                                        {/* Show View Uploaded TOR (Request Stage Only) */}
+                                        {/* Show View Uploaded Receipt (Request Stage Only) */}
                                         {submission.status === 'Request' && submission.torUrl && (
                                             <div className="mt-4 flex justify-end">
                                                 <a
@@ -213,7 +213,7 @@ export default function SubmissionsList({ userName }) {
                                                     className="px-4 py-2 bg-lifewood-darkSerpent text-white text-sm font-medium rounded-lg hover:bg-lifewood-darkSerpent transition-colors flex items-center gap-2"
                                                 >
                                                     <span className="w-4 h-4">📄</span>
-                                                    View Uploaded TOR
+                                                    View Uploaded Receipt
                                                 </a>
                                             </div>
                                         )}
@@ -230,7 +230,7 @@ export default function SubmissionsList({ userName }) {
                                                 }}
                                                 className="px-4 py-2 bg-lifewood-castletonGreen text-white text-sm font-medium rounded hover:bg-lifewood-darkSerpent transition-colors"
                                             >
-                                                View Final TOR
+                                                View Final Expense Report
                                             </button>
                                         </div>
                                     )}
@@ -243,4 +243,6 @@ export default function SubmissionsList({ userName }) {
         </div >
     );
 }
+
+
 

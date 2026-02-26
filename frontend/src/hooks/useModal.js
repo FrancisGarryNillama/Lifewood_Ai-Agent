@@ -9,3 +9,4 @@ export function useModal(initialState = false) {
 
   return { isOpen, open, close, toggle };
 }
+

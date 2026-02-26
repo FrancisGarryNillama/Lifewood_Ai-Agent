@@ -1,13 +1,12 @@
-// frontend/src/features/department/hooks/useDepartment.js
-import { useState, useCallback } from 'react'; // <-- ADDED useCallback
+// frontend/src/features/department/hooks/useAdminWorkflow.js
+import { useState, useCallback } from 'react';
 import { requestApi } from '../../../api';
 import { useNotification } from '../../../hooks';
 
 /**
- * Department hook for faculty/admin - Updated for new backend
- * Manages TOR request workflow: Request -> Pending -> Final
+ * Admin workflow hook for expense request processing.
  */
-export function useDepartment() {
+export function useAdminWorkflow() {
   const [requests, setRequests] = useState([]);
   const [applications, setApplications] = useState([]);
   const [accepted, setAccepted] = useState([]);
@@ -15,20 +14,17 @@ export function useDepartment() {
   const { showSuccess, showError } = useNotification();
 
   /**
-   * Fetch all data from three workflow stages
-   * (Wrapped in useCallback to prevent infinite re-renders in consuming component's useEffect)
+   * Fetch all data from three workflow stages.
    */
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     try {
       const [requestsData, applicationsData, acceptedData] = await Promise.all([
-        requestApi.getRequestTorList(),     // Returns array
-        requestApi.getPendingRequests(),    // Returns array
-        requestApi.getFinalDocuments(),     // Returns array
+        requestApi.getRequestTorList(),
+        requestApi.getPendingRequests(),
+        requestApi.getFinalDocuments(),
       ]);
 
-      // Extract the data array from the API response object
-      // The backend returns { success: true, data: [...], ... }
       setRequests(requestsData.data || []);
       setApplications(applicationsData.data || []);
       setAccepted(acceptedData.data || []);
@@ -37,10 +33,10 @@ export function useDepartment() {
     } finally {
       setLoading(false);
     }
-  }, [showError]); // Dependency on showError (from useNotification)
+  }, [showError]);
 
   /**
-   * Accept request (RequestTOR -> PendingRequest)
+   * Accept request (request queue -> pending queue).
    */
   const acceptRequest = useCallback(async (accountId) => {
     try {
@@ -53,10 +49,10 @@ export function useDepartment() {
       showError(error.message || 'Failed to accept request');
       return false;
     }
-  }, [fetchAllData, showSuccess, showError]); // Dependencies on fetchAllData, showSuccess, showError
+  }, [fetchAllData, showSuccess, showError]);
 
   /**
-   * Deny request (deletes from RequestTOR and all related data)
+   * Deny request and remove related queued records.
    */
   const denyRequest = useCallback(async (accountId) => {
     try {
@@ -73,7 +69,7 @@ export function useDepartment() {
   }, [fetchAllData, showSuccess, showError]);
 
   /**
-   * Finalize request (PendingRequest -> FinalDocuments)
+   * Finalize request (pending queue -> finalized queue).
    */
   const finalizeRequest = useCallback(async (accountId) => {
     try {
@@ -119,3 +115,4 @@ export function useDepartment() {
     updateStatus,
   };
 }
+

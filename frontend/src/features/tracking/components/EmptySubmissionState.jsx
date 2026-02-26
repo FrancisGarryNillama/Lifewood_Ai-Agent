@@ -29,8 +29,8 @@ export default function EmptySubmissionState({ onStartSubmission }) {
                         No Submissions Yet
                     </h3>
                     <p className="text-sm sm:text-base text-gray-600 mb-6">
-                        You haven't submitted any TOR (Transcript of Records) for accreditation yet.
-                        Start your accreditation journey by uploading your transcript.
+                        You haven't submitted any TOR (Expense Receipts) for expense processing yet.
+                        Start your expense processing journey by uploading your transcript.
                     </p>
 
                     {/* Action button */}
@@ -53,3 +53,5 @@ export default function EmptySubmissionState({ onStartSubmission }) {
         </div>
     );
 }
+
+

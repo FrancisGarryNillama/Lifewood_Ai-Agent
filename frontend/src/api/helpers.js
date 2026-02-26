@@ -99,3 +99,4 @@ export function extractError(response) {
     'An error occurred'
   );
 }
+

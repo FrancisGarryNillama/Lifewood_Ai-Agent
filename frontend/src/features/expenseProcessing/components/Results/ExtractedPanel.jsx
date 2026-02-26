@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { torApi, requestApi } from '../../../../api';
+import { expenseApi, requestApi } from '../../../../api';
 import { Modal, ModalContent, Button, ConfirmDialog } from '../../../../components/common';
 import { useNotification } from '../../../../hooks';
 import ComparisonTable from './ComparisonTable';
@@ -26,7 +26,7 @@ export default function ExtractedPanel({ data, accountId, isOpen, onClose }) {
     }
 
     try {
-      await torApi.deleteOcr(accountId);
+      await expenseApi.deleteOcr(accountId);
     } catch (err) {
       console.error('Failed to delete OCR entries:', err);
     }
@@ -66,7 +66,7 @@ export default function ExtractedPanel({ data, accountId, isOpen, onClose }) {
 
     try {
       // Copy TOR entries
-      const copyResult = await torApi.copyTor(accountId);
+      const copyResult = await expenseApi.copyTor(accountId);
       console.log('copyTor returned:', copyResult);
 
       if (!copyResult || !copyResult.data) {
@@ -83,7 +83,7 @@ export default function ExtractedPanel({ data, accountId, isOpen, onClose }) {
       if (Array.isArray(serverData)) {
         torEntries = serverData;
       } else if (serverData && serverData.count === 0) {
-        showError('No TOR entries found to process. Please upload your transcript first.');
+        showError('No TOR entries found to process. Please Upload Receipt Images first.');
         setShowConfirmPanel(false);
         setIsProcessing(false);
         return;
@@ -117,7 +117,7 @@ export default function ExtractedPanel({ data, accountId, isOpen, onClose }) {
       );
 
       // Update backend
-      await torApi.updateTorResults(
+      await expenseApi.updateTorResults(
         accountId,
         failedEntries.map((e) => e.subject_code),
         passedEntries.map((e) => ({
@@ -143,7 +143,7 @@ export default function ExtractedPanel({ data, accountId, isOpen, onClose }) {
     setIsProcessing(true);
 
     try {
-      const result = await torApi.syncCompleted(accountId);
+      const result = await expenseApi.syncCompleted(accountId);
 
       console.log("SYNC COMPLETED RAW RESPONSE:", result);
 
@@ -185,7 +185,7 @@ export default function ExtractedPanel({ data, accountId, isOpen, onClose }) {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Ready to Submit</h3>
                 <p className="text-gray-600 mb-6">
-                  Your results have been processed successfully. Submit your accreditation request now!
+                  Your results have been processed successfully. Submit your expense processing request now!
                 </p>
                 <div className="flex justify-center gap-4">
                   <Button
@@ -202,7 +202,7 @@ export default function ExtractedPanel({ data, accountId, isOpen, onClose }) {
                   >
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5" />
-                      <span>{isRequesting ? 'Submitting...' : 'Request Accreditation'}</span>
+                      <span>{isRequesting ? 'Submitting...' : 'Request expense processing'}</span>
                       <FileCheck className="w-5 h-5" />
                     </div>
                   </button>
@@ -254,3 +254,4 @@ export default function ExtractedPanel({ data, accountId, isOpen, onClose }) {
     </>
   );
 }
+

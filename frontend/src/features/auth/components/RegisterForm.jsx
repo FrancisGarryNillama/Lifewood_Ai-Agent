@@ -174,3 +174,4 @@ export default function RegisterForm({ onClose, onSuccess }) {
     </div>
   );
 }
+
