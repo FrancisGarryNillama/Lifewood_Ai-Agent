@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { ArrowRight, X, Upload, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, X, Upload, Image as ImageIcon, CheckCircle2, Camera } from 'lucide-react';
 import { generateId } from '../../../../utils';
 import { Button } from '../../../../components/common';
 
@@ -8,6 +8,7 @@ export default function MultiImageUploader({ onContinue }) {
   const [isDragging, setIsDragging] = useState(false);
   const dragIndex = useRef(null);
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   const addFiles = (fileList) => {
     const files = Array.from(fileList || []);
@@ -150,6 +151,30 @@ export default function MultiImageUploader({ onContinue }) {
               </div>
             </div>
           </div>
+
+          {/* Camera capture (useful on mobile) */}
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={onInputChange}
+          />
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); cameraInputRef.current?.click(); }}
+            className="mt-3 w-full flex items-center justify-center gap-2.5 px-4 py-3
+                       rounded-xl border-2 border-dashed border-lifewood-castletonGreen/30
+                       bg-lifewood-castletonGreen/5 hover:bg-lifewood-castletonGreen/10
+                       text-lifewood-castletonGreen font-semibold text-sm
+                       transition-all duration-200 group"
+          >
+            <div className="p-1.5 rounded-lg bg-lifewood-castletonGreen/10 group-hover:bg-lifewood-castletonGreen/20 transition-colors">
+              <Camera className="w-5 h-5" />
+            </div>
+            <span>Take Photo with Camera</span>
+          </button>
 
           {/* Thumbnails Grid - Scrollable with Fixed Max Height */}
           {images.length > 0 && (

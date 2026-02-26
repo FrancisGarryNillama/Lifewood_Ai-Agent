@@ -169,62 +169,83 @@
   }
 }
 
-/* Custom Scrollbar Styles */
-/* For webkit browsers (Chrome, Safari, Edge) */
+/* ── Lifewood Custom Scrollbar ─────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(243, 244, 246, 0.5);
-  border-radius: 10px;
+  background: #F5EEDB;
+  border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #3b82f6, #6366f1);
-  border-radius: 10px;
-  border: 2px solid rgba(243, 244, 246, 0.5);
-  transition: all 0.3s ease;
+  background: linear-gradient(180deg, #034E34, #133020);
+  border-radius: 8px;
+  border: 2px solid #F5EEDB;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #2563eb, #4f46e5);
-  border: 2px solid rgba(243, 244, 246, 0.8);
+  background: linear-gradient(180deg, #FFB347, #E89131);
+  border-color: #F5EEDB;
 }
 
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-/* Thin scrollbar for small containers */
 .scrollbar-thin::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 5px;
+  height: 5px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: rgba(243, 244, 246, 0.3);
+  background: rgba(245,238,219,0.5);
   border-radius: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #60a5fa, #818cf8);
+  background: #034E34;
   border-radius: 6px;
-  border: 1px solid rgba(243, 244, 246, 0.3);
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #3b82f6, #6366f1);
+  background: #FFB347;
 }
 
-/* For Firefox */
+/* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3b82f6 rgba(243, 244, 246, 0.5);
+  scrollbar-color: #034E34 #F5EEDB;
 }
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #60a5fa rgba(243, 244, 246, 0.3);
+  scrollbar-color: #034E34 rgba(245,238,219,0.5);
+}
+
+/* ── Lifewood Utility Classes ──────────────────────────────────────────────── */
+.lw-card {
+  @apply bg-white rounded-2xl border border-lifewood-platinum/60 shadow-lifewood;
+}
+
+.lw-btn-primary {
+  @apply bg-lifewood-castletonGreen hover:bg-lifewood-darkSerpent text-white font-semibold rounded-xl px-5 py-2.5
+         transition-all duration-200 shadow-green hover:shadow-lifewood-lg focus:outline-none focus:ring-2
+         focus:ring-lifewood-castletonGreen/40 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.lw-btn-gold {
+  @apply bg-lifewood-saffaron hover:bg-lifewood-harvest text-lifewood-darkSerpent font-semibold rounded-xl px-5 py-2.5
+         transition-all duration-200 shadow-gold hover:shadow-lifewood focus:outline-none focus:ring-2
+         focus:ring-lifewood-saffaron/40 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.lw-input {
+  @apply w-full px-4 py-3 border-2 border-lifewood-platinum rounded-xl bg-lifewood-seaSalt/60
+         text-lifewood-darkSerpent placeholder-lifewood-silver transition-all duration-200
+         focus:outline-none focus:border-lifewood-castletonGreen focus:ring-2 focus:ring-lifewood-castletonGreen/15
+         hover:bg-white hover:border-lifewood-iceGreen;
 }
