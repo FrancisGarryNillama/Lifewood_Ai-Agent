@@ -94,9 +94,11 @@ function classifyExpense(rawText, item) {
   return 'Other';
 }
 
-export function parseExpenseReceiptsFromOcr(payload, userName = '') {
+export function parseExpenseReceiptsFromOcr(payload, userName = '', options = {}) {
   const source = payload?.ocr_results || payload?.results || payload?.receipts || [];
   if (!Array.isArray(source)) return [];
+
+  const { images = [] } = options;
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -106,6 +108,10 @@ export function parseExpenseReceiptsFromOcr(payload, userName = '') {
     const receiptNo = parseReceiptNumber(rawText, item, idx);
     const amount = parseAmount(rawText, item);
     const expenseType = classifyExpense(rawText, item);
+
+    // Attach the matched uploaded image for later preview / download
+    const imageData = images[idx]?.src || null;
+    const imageName = images[idx]?.name || `${receiptNo}.png`;
 
     return {
       rowId: `receipt-${receiptNo}-${idx}`,
@@ -117,6 +123,8 @@ export function parseExpenseReceiptsFromOcr(payload, userName = '') {
       name: item?.employee_name || item?.applicant_name || userName || 'Unknown Employee',
       status: item?.status || 'Parsed',
       sourceText: rawText,
+      imageData,
+      imageName,
     };
   });
 }

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Header, BackgroundLayout } from '../components/layout';
 import Sidebar from '../components/layout/Sidebar/Sidebar';
 
@@ -13,7 +14,7 @@ import {
 import { ProfilePanel, useProfile } from '../features/profile';
 import { useModal, useNotification, useDebounce } from '../hooks';
 import { useAuthContext } from '../context';
-import { Upload, Sparkles, Search, Download, Pencil, Trash2 } from 'lucide-react';
+import { Upload, Sparkles, Search, Download, Pencil, Trash2, X, ZoomIn, ZoomOut, ImageOff, Image as ImageIcon, SlidersHorizontal, ChevronDown, ChevronUp, RotateCcw, ArrowUpDown } from 'lucide-react';
 import { Modal, ModalContent, ModalFooter, ConfirmDialog, Button, Input } from '../components/common';
 
 // Faculty / Department features
@@ -79,6 +80,202 @@ const STATIC_EXPENSE_RECEIPTS = [
     },
 ];
 
+/* ─── Receipt Image Lightbox ─────────────────────────────────────────────── */
+function ReceiptImageModal({ row, onClose }) {
+    const [zoom, setZoom] = useState(1);
+    const [dragging, setDragging] = useState(false);
+    const [origin, setOrigin] = useState({ x: 0, y: 0 });
+    const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const [base, setBase] = useState({ x: 0, y: 0 });
+    const imgRef = useRef(null);
+
+    // Reset zoom/pan when row changes
+    useEffect(() => {
+        setZoom(1);
+        setOffset({ x: 0, y: 0 });
+        setBase({ x: 0, y: 0 });
+    }, [row]);
+
+    // Close on Escape
+    useEffect(() => {
+        const handler = (e) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [onClose]);
+
+    const clampZoom = (v) => Math.min(5, Math.max(1, v));
+
+    const handleWheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.15 : -0.15;
+        setZoom((z) => clampZoom(z + delta));
+    };
+
+    const handleMouseDown = (e) => {
+        if (zoom <= 1) return;
+        setDragging(true);
+        setOrigin({ x: e.clientX, y: e.clientY });
+        setBase({ ...offset });
+    };
+    const handleMouseMove = (e) => {
+        if (!dragging) return;
+        setOffset({ x: base.x + (e.clientX - origin.x), y: base.y + (e.clientY - origin.y) });
+    };
+    const handleMouseUp = () => setDragging(false);
+
+    const handleDownload = () => {
+        if (!row?.imageData) return;
+        const link = document.createElement('a');
+        link.href = row.imageData;
+        const mimeMatch = row.imageData.match(/^data:(image\/[a-z+]+);/);
+        const ext = mimeMatch ? mimeMatch[1].replace('image/', '').replace('jpeg', 'jpg') : 'png';
+        link.download = row.imageName || `${row.receiptNo || row.idLabel || 'receipt'}.${ext}`;
+        link.click();
+    };
+
+    if (!row) return null;
+
+    return createPortal(
+        <div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={onClose}
+        >
+            {/* Modal card */}
+            <div
+                className="relative flex flex-col bg-lifewood-darkSerpent rounded-2xl shadow-lifewood-lg overflow-hidden
+                           w-full max-w-3xl max-h-[95vh] border border-white/10"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* ── Header ── */}
+                <div className="flex items-center justify-between px-5 py-3 border-b border-white/10">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-lifewood-saffaron/15 flex items-center justify-center shrink-0">
+                            <ImageIcon className="w-4 h-4 text-lifewood-saffaron" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-white font-bold text-sm truncate">
+                                {row.receiptNo || row.idLabel}
+                            </p>
+                            <p className="text-white/40 text-xs truncate">
+                                {row.name} &middot; {row.amountLabel}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Zoom controls + download + close */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        {row.imageData && (
+                            <>
+                                <button
+                                    onClick={() => setZoom((z) => clampZoom(z - 0.25))}
+                                    disabled={zoom <= 1}
+                                    className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30"
+                                    title="Zoom out"
+                                >
+                                    <ZoomOut className="w-4 h-4" />
+                                </button>
+                                <span className="text-white/50 text-xs w-10 text-center tabular-nums">
+                                    {Math.round(zoom * 100)}%
+                                </span>
+                                <button
+                                    onClick={() => setZoom((z) => clampZoom(z + 0.25))}
+                                    disabled={zoom >= 5}
+                                    className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30"
+                                    title="Zoom in"
+                                >
+                                    <ZoomIn className="w-4 h-4" />
+                                </button>
+
+                                {/* Thin divider */}
+                                <div className="w-px h-5 bg-white/15 mx-1" />
+
+                                <button
+                                    onClick={handleDownload}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                                               bg-lifewood-saffaron/15 text-lifewood-saffaron hover:bg-lifewood-saffaron/25
+                                               text-xs font-semibold transition-colors"
+                                    title="Download image"
+                                >
+                                    <Download className="w-3.5 h-3.5" />
+                                    Download
+                                </button>
+
+                                <div className="w-px h-5 bg-white/15 mx-1" />
+                            </>
+                        )}
+                        <button
+                            onClick={onClose}
+                            className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                            title="Close (Esc)"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* ── Image viewport ── */}
+                <div
+                    className="flex-1 overflow-hidden bg-[#0a1a0f] flex items-center justify-center"
+                    style={{ minHeight: 320, cursor: row.imageData ? (zoom > 1 ? (dragging ? 'grabbing' : 'grab') : 'zoom-in') : 'default' }}
+                    onWheel={row.imageData ? handleWheel : undefined}
+                    onMouseDown={row.imageData ? handleMouseDown : undefined}
+                    onMouseMove={row.imageData ? handleMouseMove : undefined}
+                    onMouseUp={row.imageData ? handleMouseUp : undefined}
+                    onMouseLeave={row.imageData ? handleMouseUp : undefined}
+                >
+                    {row.imageData ? (
+                        <img
+                            ref={imgRef}
+                            src={row.imageData}
+                            alt={`Receipt ${row.receiptNo || row.idLabel}`}
+                            draggable={false}
+                            className="max-w-full max-h-[60vh] object-contain select-none transition-transform duration-150"
+                            style={{
+                                transform: `scale(${zoom}) translate(${offset.x / zoom}px, ${offset.y / zoom}px)`,
+                                transformOrigin: 'center',
+                            }}
+                            onClick={() => {
+                                if (zoom < 5) setZoom((z) => clampZoom(z + 0.5));
+                                else { setZoom(1); setOffset({ x: 0, y: 0 }); }
+                            }}
+                        />
+                    ) : (
+                        <div className="flex flex-col items-center gap-3 text-white/30 py-16">
+                            <ImageOff className="w-14 h-14" />
+                            <p className="text-sm font-medium">No image attached to this receipt</p>
+                            <p className="text-xs text-white/20">Only OCR-uploaded receipts have images</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* ── Footer metadata strip ── */}
+                <div className="px-5 py-3 border-t border-white/10 flex flex-wrap gap-x-6 gap-y-1 text-xs text-white/40">
+                    {[
+                        { label: 'Date',         value: row.date },
+                        { label: 'Expense Type', value: row.category || row.expenseType },
+                        { label: 'Amount',       value: row.amountLabel },
+                        { label: 'Status',       value: row.status },
+                    ].map(({ label, value }) => (
+                        <span key={label}>
+                            <span className="text-white/25">{label}:{' '}</span>
+                            <span className="text-white/60 font-semibold">{value || '—'}</span>
+                        </span>
+                    ))}
+                    {zoom > 1 && (
+                        <button
+                            onClick={() => { setZoom(1); setOffset({ x: 0, y: 0 }); }}
+                            className="ml-auto text-lifewood-saffaron/70 hover:text-lifewood-saffaron transition-colors"
+                        >
+                            Reset view
+                        </button>
+                    )}
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+}
+
 export default function Dashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -87,6 +284,9 @@ export default function Dashboard() {
     const [editingImage, setEditingImage] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showProcessingModal, setShowProcessingModal] = useState(false);
+
+    // Receipt image preview
+    const [viewingImage, setViewingImage] = useState(null);
 
     // Auth context
     const { user } = useAuthContext();
@@ -125,6 +325,15 @@ export default function Dashboard() {
     const [selectedRows, setSelectedRows] = useState([]);
     const [expenseReceipts, setExpenseReceipts] = useState([]);
     const [editingReceipt, setEditingReceipt] = useState(null);
+    const [showFilters, setShowFilters] = useState(false);
+    const [filterExpenseType, setFilterExpenseType] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+    const [filterDateFrom, setFilterDateFrom] = useState('');
+    const [filterDateTo, setFilterDateTo] = useState('');
+    const [filterMinAmount, setFilterMinAmount] = useState('');
+    const [filterMaxAmount, setFilterMaxAmount] = useState('');
+    const [sortBy, setSortBy] = useState('date');
+    const [sortDir, setSortDir] = useState('desc');
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [editForm, setEditForm] = useState({
         date: '',
@@ -180,7 +389,7 @@ export default function Dashboard() {
             setShowProcessingModal(false);
 
             if (result && result.ocr_results && result.school_tor) {
-                const parsedReceipts = parseExpenseReceiptsFromOcr(result, userName);
+                const parsedReceipts = parseExpenseReceiptsFromOcr(result, userName, { images: uploadedImages });
                 if (parsedReceipts.length > 0) {
                     setExpenseReceipts((prev) => {
                         const merged = [...parsedReceipts, ...prev];
@@ -238,15 +447,43 @@ export default function Dashboard() {
     const hasReceiptData = expenseReceipts.length > 0;
 
     const filteredReceiptRows = expenseReceipts.filter((item) => {
-        if (!debouncedSearch.trim()) return true;
-        const query = debouncedSearch.toLowerCase();
-        return (
-            item.receiptNo?.toLowerCase().includes(query) ||
-            item.expenseType?.toLowerCase().includes(query) ||
-            item.name?.toLowerCase().includes(query) ||
-            item.amountLabel?.toLowerCase().includes(query) ||
-            item.date?.toLowerCase().includes(query)
-        );
+        // text search
+        if (debouncedSearch.trim()) {
+            const q = debouncedSearch.toLowerCase();
+            const matchesText = (
+                item.receiptNo?.toLowerCase().includes(q) ||
+                item.expenseType?.toLowerCase().includes(q) ||
+                item.name?.toLowerCase().includes(q) ||
+                item.amountLabel?.toLowerCase().includes(q) ||
+                item.date?.toLowerCase().includes(q)
+            );
+            if (!matchesText) return false;
+        }
+
+        // expense type filter
+        if (filterExpenseType && item.expenseType !== filterExpenseType) return false;
+
+        // status filter
+        if (filterStatus && item.status !== filterStatus) return false;
+
+        // date range filter
+        if (filterDateFrom) {
+            const from = new Date(filterDateFrom);
+            const d = new Date(item.date);
+            if (isFinite(from.getTime()) && isFinite(d.getTime()) && d < from) return false;
+        }
+        if (filterDateTo) {
+            const to = new Date(filterDateTo);
+            const d = new Date(item.date);
+            if (isFinite(to.getTime()) && isFinite(d.getTime()) && d > to) return false;
+        }
+
+        // amount range filter
+        const amt = Number((item.amount ?? String(item.amountLabel || '')).toString().replace(/[^0-9.]/g, '')) || 0;
+        if (filterMinAmount && !Number.isNaN(Number(filterMinAmount)) && amt < Number(filterMinAmount)) return false;
+        if (filterMaxAmount && !Number.isNaN(Number(filterMaxAmount)) && amt > Number(filterMaxAmount)) return false;
+
+        return true;
     });
 
     const handleOpenUpload = () => {
@@ -328,7 +565,38 @@ export default function Dashboard() {
         }));
     })();
 
-    const sortedLedgerRows = [...ledgerRows].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const sortedLedgerRows = (() => {
+        const arr = [...ledgerRows];
+        const dir = sortDir === 'asc' ? 1 : -1;
+
+        const numericValue = (r) => Number((r.amount ?? String(r.amountLabel || '')).toString().replace(/[^0-9.]/g, '')) || 0;
+
+        arr.sort((a, b) => {
+            if (sortBy === 'date') {
+                const da = new Date(a.date || 0).getTime();
+                const db = new Date(b.date || 0).getTime();
+                return (da - db) * dir;
+            }
+            if (sortBy === 'receiptNo') {
+                return (String(a.receiptNo || a.idLabel || '').localeCompare(String(b.receiptNo || b.idLabel || ''))) * dir;
+            }
+            if (sortBy === 'name') {
+                return (String(a.name || '').localeCompare(String(b.name || '')) ) * dir;
+            }
+            if (sortBy === 'category') {
+                return (String(a.category || a.expenseType || '').localeCompare(String(b.category || b.expenseType || ''))) * dir;
+            }
+            if (sortBy === 'amount') {
+                return (numericValue(a) - numericValue(b)) * dir;
+            }
+            if (sortBy === 'status') {
+                return (String(a.status || '').localeCompare(String(b.status || ''))) * dir;
+            }
+            // fallback: date desc
+            return (new Date(b.date) - new Date(a.date));
+        });
+        return arr;
+    })();
     const selectedInView = selectedRows.filter((id) => sortedLedgerRows.some((row) => row.rowId === id));
     const allSelected = sortedLedgerRows.length > 0 && selectedInView.length === sortedLedgerRows.length;
 
@@ -365,7 +633,20 @@ export default function Dashboard() {
     };
 
     const handleDownloadRow = (row) => {
-        const blob = new Blob([JSON.stringify(row, null, 2)], { type: 'application/json' });
+        // Prefer downloading the actual receipt image when available
+        if (row.imageData) {
+            const link = document.createElement('a');
+            link.href = row.imageData;
+            // Determine extension from data-url mime type
+            const mimeMatch = row.imageData.match(/^data:(image\/[a-z+]+);/);
+            const ext = mimeMatch ? mimeMatch[1].replace('image/', '').replace('jpeg', 'jpg') : 'png';
+            link.download = (row.imageName || `${row.receiptNo || row.idLabel || 'receipt'}.${ext}`);
+            link.click();
+            return;
+        }
+        // Fallback: download metadata as JSON
+        const { imageData: _img, imageName: _imgName, ...exportRow } = row;
+        const blob = new Blob([JSON.stringify(exportRow, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -463,7 +744,8 @@ export default function Dashboard() {
 
     return (
         <BackgroundLayout>
-            <div className="min-h-screen relative overflow-hidden bg-gray-50/50">
+            {/* Page shell */}
+            <div className="min-h-screen bg-lifewood-paper/60">
                 <div className="relative z-10">
                     <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} userName={userName} />
                     <Sidebar
@@ -471,115 +753,292 @@ export default function Dashboard() {
                         onOpenProfile={profileModal.open}
                     />
 
-                    <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12">
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-                        {/* Application Management Section */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-8">
-                            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                                Good Day {staticGreetingName}!
-                            </h2>
-                            <p className="text-base sm:text-lg text-gray-600">
-                                AI Agent OCR for expense receipts
-                            </p>
+                        {/* ── Greeting banner ──────────────────────────────────────── */}
+                        <div className="relative overflow-hidden rounded-2xl bg-lifewood-darkSerpent text-white px-6 py-7 mb-6 shadow-lifewood-lg">
+                            {/* decorative shimmer stripe */}
+                            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-lifewood-goldenBrown via-lifewood-saffaron to-lifewood-earthYellow" />
+                            {/* background pattern */}
+                            <div className="absolute right-0 top-0 bottom-0 w-48 opacity-5 pointer-events-none"
+                                style={{ background: 'radial-gradient(circle at 120% 50%, #FFB347 0%, transparent 70%)' }} />
+                            <div className="relative z-10">
+                                <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-1">
+                                    Good Day,{' '}
+                                    <span className="text-lifewood-saffaron">{staticGreetingName}</span>!
+                                </h2>
+                                <p className="text-white/55 text-sm">
+                                    AI Agent OCR — upload expense receipts for instant extraction.
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-                            <div className="p-5 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-white via-lifewood-paper/30 to-lifewood-seaSalt/40">
-                                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        {/* ── OCR Workspace card ───────────────────────────────────── */}
+                        <div className="bg-white rounded-2xl shadow-lifewood border border-lifewood-platinum/50 overflow-hidden mb-8">
+
+                            {/* Card header */}
+                            <div className="px-5 sm:px-6 py-5 border-b border-lifewood-platinum/60 bg-lifewood-paper/40">
+
+                                {/* ── Row 1: Title  |  Upload + Export ── */}
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
                                     <div className="flex items-center gap-3">
-                                        <h3 className="text-xl font-bold text-lifewood-darkSerpent">
+                                        <div className="w-2 h-7 rounded-full bg-gradient-to-b from-lifewood-saffaron to-lifewood-goldenBrown" />
+                                        <h3 className="text-lg font-bold text-lifewood-darkSerpent">
                                             Expense OCR Workspace
                                         </h3>
-                                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-lifewood-earthYellow/30 text-lifewood-darkSerpent">
-                                            {selectedInView.length} selected
-                                        </span>
+                                        {selectedInView.length > 0 && (
+                                            <span className="text-xs font-bold px-2.5 py-1 rounded-full
+                                                             bg-lifewood-saffaron/20 text-lifewood-goldenBrown border border-lifewood-saffaron/30">
+                                                {selectedInView.length} selected
+                                            </span>
+                                        )}
                                     </div>
 
-                                    <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                                    <div className="flex items-center gap-2.5">
                                         <button
                                             onClick={handleOpenUpload}
-                                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-lifewood-castletonGreen via-lifewood-saffaron to-lifewood-earthYellow text-white font-bold shadow-lg hover:shadow-lifewood-castletonGreen/30 transition-all"
+                                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
+                                                       bg-lifewood-castletonGreen hover:bg-lifewood-darkSerpent text-white
+                                                       font-semibold text-sm shadow-green hover:shadow-lifewood-lg
+                                                       transition-all duration-200 focus:outline-none focus:ring-2
+                                                       focus:ring-lifewood-castletonGreen/40"
                                         >
                                             <Sparkles className="w-4 h-4" />
                                             Upload Receipt
                                             <Upload className="w-4 h-4" />
                                         </button>
 
-                                        <div className="relative">
-                                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                            <input
-                                                type="text"
-                                                value={searchQuery}
-                                                onChange={(e) => setSearchQuery(e.target.value)}
-                                                placeholder="Search receipts..."
-                                                className="w-full sm:w-64 pl-9 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-lifewood-castletonGreen/30"
-                                            />
-                                        </div>
-
                                         <button
                                             onClick={handleExportSelected}
                                             disabled={selectedInView.length === 0}
-                                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-lifewood-castletonGreen text-white font-semibold hover:bg-lifewood-darkSerpent transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+                                                       bg-lifewood-paper border border-lifewood-castletonGreen/30
+                                                       text-lifewood-castletonGreen font-semibold text-sm
+                                                       hover:bg-lifewood-castletonGreen hover:text-white
+                                                       transition-all duration-200
+                                                       disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-lifewood-paper disabled:hover:text-lifewood-castletonGreen"
                                         >
                                             <Download className="w-4 h-4" />
-                                            Export Selected
+                                            Export
                                         </button>
                                     </div>
                                 </div>
 
-                                <div className="mt-4 inline-flex rounded-lg bg-lifewood-paper/60 p-1 border border-lifewood-castletonGreen/15">
+                                {/* ── Row 2: Search  |  Status  |  Category — always visible ── */}
+                                <div className="flex flex-col sm:flex-row gap-3 items-end">
+                                    {/* Search */}
+                                    <div className="relative flex-1 min-w-0">
+                                        <Search className="w-4 h-4 text-lifewood-asphalt/60 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                        <input
+                                            type="text"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            placeholder="Search by receipt no, employee, or description…"
+                                            className="w-full h-[42px] pl-10 pr-4 rounded-xl
+                                                       border border-lifewood-platinum bg-white text-sm
+                                                       text-lifewood-darkSerpent placeholder-lifewood-asphalt/50
+                                                       focus:outline-none focus:ring-2 focus:ring-lifewood-castletonGreen/20
+                                                       focus:border-lifewood-castletonGreen transition-all"
+                                        />
+                                    </div>
+
+                                    {/* Status dropdown */}
+                                    <div className="flex flex-col shrink-0 w-full sm:w-[160px]">
+                                        <label className="text-[10px] font-semibold text-lifewood-charcoal/60 uppercase tracking-wider mb-1 ml-1">Status</label>
+                                        <select
+                                            value={filterStatus}
+                                            onChange={(e) => setFilterStatus(e.target.value)}
+                                            className="h-[42px] px-3 pr-8 rounded-xl border border-lifewood-platinum bg-white text-sm
+                                                       text-lifewood-darkSerpent cursor-pointer
+                                                       focus:outline-none focus:ring-2 focus:ring-lifewood-castletonGreen/20
+                                                       focus:border-lifewood-castletonGreen transition-all appearance-none
+                                                       bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23999%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%2F%3E%3C%2Fsvg%3E')]
+                                                       bg-no-repeat bg-[right_0.75rem_center]"
+                                        >
+                                            <option value="">All Statuses</option>
+                                            {Array.from(new Set(expenseReceipts.map(r => r.status).filter(Boolean))).map((s) => (
+                                                <option key={s} value={s}>{s}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Category dropdown */}
+                                    <div className="flex flex-col shrink-0 w-full sm:w-[160px]">
+                                        <label className="text-[10px] font-semibold text-lifewood-charcoal/60 uppercase tracking-wider mb-1 ml-1">Category</label>
+                                        <select
+                                            value={filterExpenseType}
+                                            onChange={(e) => setFilterExpenseType(e.target.value)}
+                                            className="h-[42px] px-3 pr-8 rounded-xl border border-lifewood-platinum bg-white text-sm
+                                                       text-lifewood-darkSerpent cursor-pointer
+                                                       focus:outline-none focus:ring-2 focus:ring-lifewood-castletonGreen/20
+                                                       focus:border-lifewood-castletonGreen transition-all appearance-none
+                                                       bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23999%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%2F%3E%3C%2Fsvg%3E')]
+                                                       bg-no-repeat bg-[right_0.75rem_center]"
+                                        >
+                                            <option value="">All</option>
+                                            {Array.from(new Set(expenseReceipts.map(r => r.expenseType).filter(Boolean))).map((t) => (
+                                                <option key={t} value={t}>{t}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* ── Row 3 (collapsible): Advanced filters ── */}
+                                <div className="mt-3">
                                     <button
-                                        onClick={() => setActiveTab('requests')}
-                                        className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-colors ${activeTab === 'requests'
-                                            ? 'bg-white text-lifewood-darkSerpent shadow-sm'
-                                            : 'text-gray-600 hover:text-lifewood-darkSerpent'
-                                            }`}
+                                        onClick={() => setShowFilters((s) => !s)}
+                                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-lifewood-charcoal/70
+                                                   hover:text-lifewood-darkSerpent transition-colors"
                                     >
-                                        All Types ({hasReceiptData ? filteredReceiptRows.length : filteredRequests.length})
+                                        <SlidersHorizontal className="w-3.5 h-3.5" />
+                                        Advanced Filters
+                                        {showFilters ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                                     </button>
-                                    <button
-                                        onClick={() => setActiveTab('applications')}
-                                        className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-colors ${activeTab === 'applications'
-                                            ? 'bg-white text-lifewood-darkSerpent shadow-sm'
-                                            : 'text-gray-600 hover:text-lifewood-darkSerpent'
-                                            }`}
-                                    >
-                                        Travel & Meals ({hasReceiptData
-                                            ? filteredReceiptRows.filter((row) => ['Meals', 'Travel', 'Fuel', 'Accommodation'].includes(row.expenseType)).length
-                                            : filteredApplications.length})
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('accepted')}
-                                        className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-colors ${activeTab === 'accepted'
-                                            ? 'bg-white text-lifewood-darkSerpent shadow-sm'
-                                            : 'text-gray-600 hover:text-lifewood-darkSerpent'
-                                            }`}
-                                    >
-                                        Office & Other ({hasReceiptData
-                                            ? filteredReceiptRows.filter((row) => ['Office Supplies', 'Utilities', 'Other'].includes(row.expenseType)).length
-                                            : filteredAccepted.length})
-                                    </button>
+
+                                    {showFilters && (
+                                        <div className="mt-2.5 flex flex-col sm:flex-row gap-3 items-stretch sm:items-end
+                                                        p-3.5 rounded-xl bg-lifewood-seaSalt/60 border border-lifewood-platinum/50">
+                                            <div className="flex flex-col">
+                                                <label className="text-[10px] font-semibold text-lifewood-charcoal/60 uppercase tracking-wider mb-1 ml-0.5">From</label>
+                                                <input
+                                                    type="date"
+                                                    value={filterDateFrom}
+                                                    onChange={(e) => setFilterDateFrom(e.target.value)}
+                                                    className="px-3 py-2 rounded-lg border border-lifewood-platinum bg-white text-sm
+                                                               text-lifewood-darkSerpent focus:outline-none focus:ring-2
+                                                               focus:ring-lifewood-castletonGreen/20 focus:border-lifewood-castletonGreen transition-all"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <label className="text-[10px] font-semibold text-lifewood-charcoal/60 uppercase tracking-wider mb-1 ml-0.5">To</label>
+                                                <input
+                                                    type="date"
+                                                    value={filterDateTo}
+                                                    onChange={(e) => setFilterDateTo(e.target.value)}
+                                                    className="px-3 py-2 rounded-lg border border-lifewood-platinum bg-white text-sm
+                                                               text-lifewood-darkSerpent focus:outline-none focus:ring-2
+                                                               focus:ring-lifewood-castletonGreen/20 focus:border-lifewood-castletonGreen transition-all"
+                                                />
+                                            </div>
+
+                                            <div className="w-px h-8 bg-lifewood-platinum/60 hidden sm:block self-center" />
+
+                                            <div className="flex flex-col">
+                                                <label className="text-[10px] font-semibold text-lifewood-charcoal/60 uppercase tracking-wider mb-1 ml-0.5">Min Amount</label>
+                                                <input
+                                                    type="number"
+                                                    placeholder="0"
+                                                    value={filterMinAmount}
+                                                    onChange={(e) => setFilterMinAmount(e.target.value)}
+                                                    className="w-28 px-3 py-2 rounded-lg border border-lifewood-platinum bg-white text-sm
+                                                               text-lifewood-darkSerpent focus:outline-none focus:ring-2
+                                                               focus:ring-lifewood-castletonGreen/20 focus:border-lifewood-castletonGreen transition-all"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <label className="text-[10px] font-semibold text-lifewood-charcoal/60 uppercase tracking-wider mb-1 ml-0.5">Max Amount</label>
+                                                <input
+                                                    type="number"
+                                                    placeholder="∞"
+                                                    value={filterMaxAmount}
+                                                    onChange={(e) => setFilterMaxAmount(e.target.value)}
+                                                    className="w-28 px-3 py-2 rounded-lg border border-lifewood-platinum bg-white text-sm
+                                                               text-lifewood-darkSerpent focus:outline-none focus:ring-2
+                                                               focus:ring-lifewood-castletonGreen/20 focus:border-lifewood-castletonGreen transition-all"
+                                                />
+                                            </div>
+
+                                            <button
+                                                onClick={() => {
+                                                    setFilterExpenseType('');
+                                                    setFilterStatus('');
+                                                    setFilterDateFrom('');
+                                                    setFilterDateTo('');
+                                                    setFilterMinAmount('');
+                                                    setFilterMaxAmount('');
+                                                    setSearchQuery('');
+                                                }}
+                                                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg
+                                                           border border-lifewood-platinum bg-white text-sm font-medium
+                                                           text-lifewood-charcoal hover:bg-lifewood-paper hover:text-lifewood-darkSerpent
+                                                           transition-all self-end"
+                                            >
+                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                Reset All
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* ── Row 4: Results count + Tabs ── */}
+                                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div className="inline-flex rounded-xl bg-lifewood-paper p-1 border border-lifewood-platinum/60 w-full sm:w-auto">
+                                        {[
+                                            { key: 'requests',    label: 'All Types',       count: hasReceiptData ? filteredReceiptRows.length : filteredRequests.length },
+                                            { key: 'applications',label: 'Travel & Meals',  count: hasReceiptData ? filteredReceiptRows.filter(r => ['Meals','Travel','Fuel','Accommodation'].includes(r.expenseType)).length : filteredApplications.length },
+                                            { key: 'accepted',    label: 'Office & Other',  count: hasReceiptData ? filteredReceiptRows.filter(r => ['Office Supplies','Utilities','Other'].includes(r.expenseType)).length : filteredAccepted.length },
+                                        ].map(tab => (
+                                            <button
+                                                key={tab.key}
+                                                onClick={() => setActiveTab(tab.key)}
+                                                className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 ${
+                                                    activeTab === tab.key
+                                                        ? 'bg-lifewood-castletonGreen text-white shadow-sm'
+                                                        : 'text-lifewood-charcoal hover:text-lifewood-darkSerpent'
+                                                }`}
+                                            >
+                                                {tab.label}
+                                                <span className={`text-[10px] px-1.5 py-px rounded-full font-bold ${
+                                                    activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-lifewood-platinum text-lifewood-charcoal'
+                                                }`}>{tab.count}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <p className="text-xs text-lifewood-charcoal/60 font-medium">
+                                        {sortedLedgerRows.length} {sortedLedgerRows.length === 1 ? 'receipt' : 'receipts'} found
+                                    </p>
                                 </div>
                             </div>
 
                             <div className="overflow-x-auto">
                                 <table className="min-w-full text-sm">
-                                    <thead className="bg-gray-50 border-y border-gray-100">
-                                        <tr className="text-left text-xs font-bold uppercase tracking-wide text-gray-500">
+                                    <thead>
+                                        <tr className="bg-lifewood-darkSerpent text-left text-[11px] font-bold uppercase tracking-widest text-white/60">
                                             <th className="px-4 py-3 w-12">
                                                 <input
                                                     type="checkbox"
                                                     checked={allSelected}
                                                     onChange={toggleSelectAll}
-                                                    className="rounded border-gray-300 text-lifewood-castletonGreen focus:ring-lifewood-castletonGreen"
+                                                    className="rounded border-lifewood-fernGreen text-lifewood-saffaron
+                                                               focus:ring-lifewood-saffaron/40 cursor-pointer"
                                                 />
                                             </th>
-                                            <th className="px-4 py-3">Date</th>
-                                            <th className="px-4 py-3">Receipt No</th>
-                                            <th className="px-4 py-3">Employee</th>
-                                            <th className="px-4 py-3">Expense Type</th>
-                                            <th className="px-4 py-3">Amount</th>
-                                            <th className="px-4 py-3">Status</th>
+                                            {[
+                                                { key: 'date',      label: 'Date',         defaultDir: 'desc' },
+                                                { key: 'receiptNo', label: 'Receipt No',   defaultDir: 'asc'  },
+                                                { key: 'name',      label: 'Employee',     defaultDir: 'asc'  },
+                                                { key: 'category',  label: 'Expense Type', defaultDir: 'asc'  },
+                                                { key: 'amount',    label: 'Amount',       defaultDir: 'desc' },
+                                                { key: 'status',    label: 'Status',       defaultDir: 'asc'  },
+                                            ].map(col => (
+                                                <th key={col.key} className="px-4 py-3">
+                                                    <button
+                                                        onClick={() => {
+                                                            if (sortBy === col.key) setSortDir(s => s === 'asc' ? 'desc' : 'asc');
+                                                            else { setSortBy(col.key); setSortDir(col.defaultDir); }
+                                                        }}
+                                                        className="group inline-flex items-center gap-1.5 hover:text-white transition-colors"
+                                                    >
+                                                        {col.label}
+                                                        {sortBy === col.key ? (
+                                                            <span className="text-lifewood-saffaron text-[10px]">{sortDir === 'asc' ? '▲' : '▼'}</span>
+                                                        ) : (
+                                                            <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-40 transition-opacity" />
+                                                        )}
+                                                    </button>
+                                                </th>
+                                            ))}
                                             <th className="px-4 py-3 text-right">Actions</th>
                                         </tr>
                                     </thead>
@@ -587,16 +1046,19 @@ export default function Dashboard() {
                                     <tbody>
                                         {tableLoading && !hasReceiptData && (
                                             <tr>
-                                                <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
-                                                    Loading receipts...
+                                                <td colSpan={8} className="px-4 py-14 text-center">
+                                                    <div className="flex flex-col items-center gap-3 text-lifewood-asphalt">
+                                                        <div className="w-6 h-6 border-2 border-lifewood-castletonGreen border-t-transparent rounded-full animate-spin" />
+                                                        <span className="text-sm">Loading receipts…</span>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )}
 
                                         {!tableLoading && sortedLedgerRows.length === 0 && (
                                             <tr>
-                                                <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
-                                                    {searchQuery ? 'No matching receipts found.' : 'No receipts found.'}
+                                                <td colSpan={8} className="px-4 py-14 text-center text-lifewood-asphalt text-sm">
+                                                    {searchQuery ? 'No matching receipts found.' : 'No receipts found. Upload your first receipt to get started.'}
                                                 </td>
                                             </tr>
                                         )}
@@ -611,62 +1073,95 @@ export default function Dashboard() {
                                                 }).toUpperCase();
                                                 const showMonthLabel = monthLabel !== lastMonthLabel;
                                                 lastMonthLabel = monthLabel;
+                                                const isSelected = selectedRows.includes(row.rowId);
 
                                                 return (
                                                     <React.Fragment key={row.rowId}>
                                                         {showMonthLabel && (
-                                                            <tr className="bg-lifewood-paper/60">
-                                                                <td colSpan={8} className="px-4 py-2 text-xs font-bold tracking-wide text-lifewood-darkSerpent">
+                                                            <tr className="bg-lifewood-paper/50">
+                                                                <td colSpan={8} className="px-4 py-2 text-[10px] font-bold tracking-widest text-lifewood-fernGreen uppercase">
                                                                     {monthLabel}
                                                                 </td>
                                                             </tr>
                                                         )}
-                                                        <tr className="border-b border-gray-100 hover:bg-lifewood-seaSalt/30 transition-colors">
+                                                        <tr className={`border-b border-lifewood-platinum/40 transition-colors ${
+                                                            isSelected
+                                                                ? 'bg-lifewood-saffaron/8'
+                                                                : 'hover:bg-lifewood-paper/60'
+                                                        }`}>
                                                             <td className="px-4 py-3">
                                                                 <input
                                                                     type="checkbox"
-                                                                    checked={selectedRows.includes(row.rowId)}
+                                                                    checked={isSelected}
                                                                     onChange={() => toggleRowSelection(row.rowId)}
-                                                                    className="rounded border-gray-300 text-lifewood-castletonGreen focus:ring-lifewood-castletonGreen"
+                                                                    className="rounded border-lifewood-platinum text-lifewood-saffaron
+                                                                               focus:ring-lifewood-saffaron/40 cursor-pointer"
                                                                 />
                                                             </td>
-                                                            <td className="px-4 py-3 text-gray-700">{formatDate(row.date)}</td>
-                                                            <td className="px-4 py-3 font-semibold text-gray-800">{row.idLabel}</td>
-                                                            <td className="px-4 py-3 text-gray-700">{row.name}</td>
+                                                            <td className="px-4 py-3 text-lifewood-charcoal text-sm">{formatDate(row.date)}</td>
                                                             <td className="px-4 py-3">
-                                                                <span className="inline-flex px-2 py-1 rounded-md text-xs font-semibold bg-lifewood-seaSalt text-lifewood-darkSerpent">
+                                                                <button
+                                                                    onClick={() => setViewingImage(row)}
+                                                                    className="group inline-flex items-center gap-1.5 font-semibold text-lifewood-castletonGreen
+                                                                               hover:text-lifewood-darkSerpent text-sm transition-colors
+                                                                               focus:outline-none focus:underline"
+                                                                    title={row.imageData ? 'Click to view receipt image' : 'No image attached'}
+                                                                >
+                                                                    {row.imageData
+                                                                        ? <ImageIcon className="w-3.5 h-3.5 text-lifewood-saffaron shrink-0 group-hover:scale-110 transition-transform" />
+                                                                        : <ImageOff className="w-3.5 h-3.5 text-lifewood-silver shrink-0" />
+                                                                    }
+                                                                    <span className="underline underline-offset-2 decoration-dotted group-hover:decoration-solid">
+                                                                        {row.idLabel}
+                                                                    </span>
+                                                                </button>
+                                                            </td>
+                                                            <td className="px-4 py-3 text-lifewood-charcoal text-sm">{row.name}</td>
+                                                            <td className="px-4 py-3">
+                                                                <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold
+                                                                                 bg-lifewood-castletonGreen/10 text-lifewood-castletonGreen
+                                                                                 border border-lifewood-castletonGreen/15">
                                                                     {row.category}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-4 py-3 font-semibold text-lifewood-darkSerpent">{row.amountLabel}</td>
+                                                            <td className="px-4 py-3 font-bold text-lifewood-darkSerpent text-sm">{row.amountLabel}</td>
                                                             <td className="px-4 py-3">
-                                                                <span className="inline-flex items-center gap-2 text-gray-700">
-                                                                    <span className={`w-2 h-2 rounded-full ${getStatusDotClass(row.status)}`} />
-                                                                    {row.status}
+                                                                <span className="inline-flex items-center gap-1.5 text-sm">
+                                                                    <span className={`w-2 h-2 rounded-full shrink-0 ${getStatusDotClass(row.status)}`} />
+                                                                    <span className="text-lifewood-charcoal">{row.status}</span>
                                                                 </span>
                                                             </td>
                                                             <td className="px-4 py-3">
                                                                 <div className="flex justify-end items-center gap-1">
                                                                     <button
                                                                         onClick={() => handleDownloadRow(row)}
-                                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-600 hover:bg-lifewood-seaSalt transition-colors"
+                                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg
+                                                                                   text-lifewood-charcoal hover:text-lifewood-castletonGreen
+                                                                                   hover:bg-lifewood-castletonGreen/10 border border-transparent
+                                                                                   hover:border-lifewood-castletonGreen/20 transition-all"
                                                                         title="Download"
                                                                     >
-                                                                        <Download className="w-4 h-4" />
+                                                                        <Download className="w-3.5 h-3.5" />
                                                                     </button>
                                                                     <button
                                                                         onClick={() => handleEditRow(row)}
-                                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-600 hover:bg-lifewood-seaSalt transition-colors"
+                                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg
+                                                                                   text-lifewood-charcoal hover:text-lifewood-goldenBrown
+                                                                                   hover:bg-lifewood-saffaron/15 border border-transparent
+                                                                                   hover:border-lifewood-saffaron/25 transition-all"
                                                                         title="Edit"
                                                                     >
-                                                                        <Pencil className="w-4 h-4" />
+                                                                        <Pencil className="w-3.5 h-3.5" />
                                                                     </button>
                                                                     <button
                                                                         onClick={() => handleDeleteRow(row)}
-                                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
+                                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg
+                                                                                   text-lifewood-charcoal hover:text-red-500
+                                                                                   hover:bg-red-50 border border-transparent
+                                                                                   hover:border-red-200 transition-all"
                                                                         title="Delete"
                                                                     >
-                                                                        <Trash2 className="w-4 h-4" />
+                                                                        <Trash2 className="w-3.5 h-3.5" />
                                                                     </button>
                                                                 </div>
                                                             </td>
@@ -683,26 +1178,31 @@ export default function Dashboard() {
                     </main>
                 </div>
 
-                {/* Upload Modal */}
+                {/* ── Upload Modal ─────────────────────────────────────────────── */}
                 {showUploadModal && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-thin">
-                            <div className="sticky top-0 bg-gradient-to-r from-lifewood-castletonGreen via-lifewood-saffaron to-lifewood-earthYellow p-6 rounded-t-2xl">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Sparkles className="w-8 h-8 text-white" />
-                                        <h2 className="text-2xl font-bold text-white">
-                                            Upload Receipt
-                                        </h2>
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-lifewood-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-thin
+                                        border border-lifewood-platinum/50">
+                            {/* Modal header */}
+                            <div className="sticky top-0 bg-lifewood-darkSerpent px-6 py-5 rounded-t-2xl flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-xl bg-lifewood-saffaron/20 flex items-center justify-center">
+                                        <Sparkles className="w-5 h-5 text-lifewood-saffaron" />
                                     </div>
-                                    <button
-                                        onClick={() => setShowUploadModal(false)}
-                                        className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
-                                    >
-                                        <span className="w-6 h-6 flex justify-center items-center font-bold text-xl">x</span>
-                                    </button>
+                                    <div>
+                                        <h2 className="text-lg font-bold text-white leading-tight">Upload Receipt</h2>
+                                        <p className="text-xs text-white/45">AI-powered expense extraction</p>
+                                    </div>
                                 </div>
+                                <button
+                                    onClick={() => setShowUploadModal(false)}
+                                    className="text-white/60 hover:text-white hover:bg-white/10 rounded-lg p-1.5 transition-colors"
+                                >
+                                    <span className="w-5 h-5 flex justify-center items-center font-bold text-lg leading-none">×</span>
+                                </button>
                             </div>
+                            {/* Gold accent strip */}
+                            <div className="h-[2px] bg-gradient-to-r from-lifewood-goldenBrown via-lifewood-saffaron to-transparent" />
                             <div className="p-6">
                                 <MultiImageUploader onContinue={handleContinueUpload} />
                             </div>
@@ -822,13 +1322,28 @@ export default function Dashboard() {
                 />
 
                 {showProcessingModal && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        {/* Processing Spinner UI */}
-                        <div className="bg-white p-8 rounded-2xl shadow-2xl items-center flex flex-col justify-center">
-                            <div className="w-16 h-16 border-4 border-lifewood-castletonGreen border-t-transparent rounded-full animate-spin"></div>
-                            <h3 className="mt-4 text-xl font-bold">Processing...</h3>
+                    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-lifewood-darkSerpent rounded-2xl shadow-lifewood-lg px-10 py-12
+                                        flex flex-col items-center gap-5 border border-white/10 min-w-[220px]">
+                            {/* Gold spinning ring */}
+                            <div className="relative w-16 h-16">
+                                <div className="absolute inset-0 rounded-full border-4 border-white/10" />
+                                <div className="absolute inset-0 rounded-full border-4 border-t-lifewood-saffaron border-l-lifewood-goldenBrown border-r-transparent border-b-transparent animate-spin" />
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-lg font-bold text-white">Processing…</h3>
+                                <p className="text-white/45 text-xs mt-1">AI is extracting receipt data</p>
+                            </div>
                         </div>
                     </div>
+                )}
+
+                {/* ── Receipt Image Lightbox ── */}
+                {viewingImage && (
+                    <ReceiptImageModal
+                        row={viewingImage}
+                        onClose={() => setViewingImage(null)}
+                    />
                 )}
             </div>
         </BackgroundLayout>
