@@ -25,12 +25,12 @@ export const ROUTES = {
   LOGIN: '/LoginPage',
   REGISTER: '/RegisterPage',
   
-  // Student
+  // Employee
   HOME: '/Dashboard',
   PROFILE: '/profile',
   ABOUT: '/AboutUsPage',
   
-  // Faculty
+  // Admin
   ADMIN_DASHBOARD: '/Dashboard',
   REQUEST: '/request/:id',
   DOCUMENT: '/document/:id',
@@ -55,3 +55,6 @@ export const FILE_TYPES = {
 };
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+
+

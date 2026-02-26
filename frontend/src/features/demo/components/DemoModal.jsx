@@ -68,7 +68,7 @@ function DemoModal({ isOpen, onClose, onProcess }) {
                             Experience Lifewood
                         </h2>
                         <p className="text-lifewood-paper text-lg">
-                            Upload your transcript images and see our AI in action
+                            Upload Receipt Images images and see our AI in action
                         </p>
                     </div>
                 </div>
@@ -84,3 +84,5 @@ function DemoModal({ isOpen, onClose, onProcess }) {
 }
 
 export default DemoModal;
+
+

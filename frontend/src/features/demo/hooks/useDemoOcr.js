@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { torApi } from '../../../api';
+import { expenseApi } from '../../../api';
 import { dataURLtoFile } from '../../../utils';
 
 export function useDemoOcr() {
@@ -29,7 +29,7 @@ export function useDemoOcr() {
         return img;
       });
 
-      const data = await torApi.uploadDemoOcr(processedImages);
+      const data = await expenseApi.uploadDemoOcr(processedImages);
 
       // Map results back to images
       const mapped = images.map((img, index) => {
@@ -65,3 +65,4 @@ export function useDemoOcr() {
 
   return { processImages, loading, error, results, reset };
 }
+

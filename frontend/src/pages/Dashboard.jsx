@@ -14,21 +14,25 @@ import {
 import { ProfilePanel, useProfile } from '../features/profile';
 import { useModal, useNotification, useDebounce } from '../hooks';
 import { useAuthContext } from '../context';
-import { Upload, Sparkles, Search, Download, Pencil, Trash2, X, ZoomIn, ZoomOut, ImageOff, Image as ImageIcon, SlidersHorizontal, ChevronDown, ChevronUp, RotateCcw, ArrowUpDown, Folder, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Upload, Sparkles, Search, Download, Pencil, Trash2, X, ZoomIn, ZoomOut, ImageOff, Image as ImageIcon, SlidersHorizontal, ChevronDown, ChevronUp, RotateCcw, ArrowUpDown, Folder, ArrowLeft, ChevronRight, Eye, LayoutGrid, List } from 'lucide-react';
 import { Modal, ModalContent, ModalFooter, ConfirmDialog, Button, Input } from '../components/common';
 import { formatDate, parseExpenseReceiptsFromOcr } from '../utils';
 
 const EXPENSE_RECEIPTS_KEY = 'expenseReceipts';
 const EXPENSE_FOLDERS = [
+    'Office Supplies',
+    'Utilities',
+    'Communication',
+    'Transportation & Travel',
+    'Meals & Entertainment',
+    'Repirs & Maintenance',
+    'Professional Fees',
+    'Rent',
+    'Advertising & Promotion',
+    'Taxes & Licenses',
+    'Insurance',
+    'Salaries & wages',
     'Admin Expense',
-    'Condo Dues',
-    'Internet Expense',
-    'Office Supply',
-    'Rental',
-    'Salary and Wages',
-    'Service Charge',
-    'Taxes and Licenses',
-    'Utilities Expense',
 ];
 
 const toFolderSlug = (name) =>
@@ -41,78 +45,21 @@ const FOLDER_ROUTE_MAP = EXPENSE_FOLDERS.map((name) => ({
 
 const mapExpenseTypeToFolderSlug = (expenseType = '') => {
     const t = String(expenseType).toLowerCase();
-    if (t.includes('internet')) return toFolderSlug('Internet Expense');
-    if (t.includes('utility')) return toFolderSlug('Utilities Expense');
-    if (t.includes('salary') || t.includes('wage')) return toFolderSlug('Salary and Wages');
-    if (t.includes('service')) return toFolderSlug('Service Charge');
-    if (t.includes('tax') || t.includes('license')) return toFolderSlug('Taxes and Licenses');
-    if (t.includes('rent') || t.includes('lease') || t.includes('accommodation')) return toFolderSlug('Rental');
-    if (t.includes('condo')) return toFolderSlug('Condo Dues');
-    if (t.includes('office') || t.includes('supply')) return toFolderSlug('Office Supply');
+    if (t.includes('office') || t.includes('supply') || t.includes('stationery')) return toFolderSlug('Office Supplies');
+    if (t.includes('utility') || t.includes('electric') || t.includes('water')) return toFolderSlug('Utilities');
+    if (t.includes('internet') || t.includes('telecom') || t.includes('phone') || t.includes('mobile') || t.includes('communication')) return toFolderSlug('Communication');
+    if (t.includes('transport') || t.includes('travel') || t.includes('taxi') || t.includes('flight') || t.includes('fuel')) return toFolderSlug('Transportation & Travel');
+    if (t.includes('meal') || t.includes('food') || t.includes('restaurant') || t.includes('entertainment')) return toFolderSlug('Meals & Entertainment');
+    if (t.includes('repair') || t.includes('maintenance') || t.includes('service')) return toFolderSlug('Repirs & Maintenance');
+    if (t.includes('professional') || t.includes('consult') || t.includes('legal') || t.includes('audit')) return toFolderSlug('Professional Fees');
+    if (t.includes('rent') || t.includes('lease') || t.includes('accommodation')) return toFolderSlug('Rent');
+    if (t.includes('advert') || t.includes('promotion') || t.includes('marketing')) return toFolderSlug('Advertising & Promotion');
+    if (t.includes('tax') || t.includes('license')) return toFolderSlug('Taxes & Licenses');
+    if (t.includes('insurance') || t.includes('premium')) return toFolderSlug('Insurance');
+    if (t.includes('salary') || t.includes('wage') || t.includes('payroll')) return toFolderSlug('Salaries & wages');
     return toFolderSlug('Admin Expense');
 };
-const STATIC_EXPENSE_RECEIPTS = [
-    {
-        rowId: 'seed-rcp-1001',
-        receiptNo: 'RCP-1001',
-        date: '2026-02-20',
-        amount: 150.5,
-        amountLabel: 'PHP 150.50',
-        expenseType: 'Meals',
-        name: 'Juan Dela Cruz',
-        status: 'Parsed',
-        sourceText: 'Lunch receipt',
-        folderSlug: toFolderSlug('Admin Expense'),
-    },
-    {
-        rowId: 'seed-rcp-1002',
-        receiptNo: 'RCP-1002',
-        date: '2026-02-21',
-        amount: 3500,
-        amountLabel: 'PHP 3500.00',
-        expenseType: 'Travel',
-        name: 'Maria Santos',
-        status: 'Parsed',
-        sourceText: 'Flight booking',
-        folderSlug: toFolderSlug('Admin Expense'),
-    },
-    {
-        rowId: 'seed-rcp-1003',
-        receiptNo: 'RCP-1003',
-        date: '2026-02-22',
-        amount: 980,
-        amountLabel: 'PHP 980.00',
-        expenseType: 'Office Supplies',
-        name: 'Carlo Reyes',
-        status: 'Parsed',
-        sourceText: 'Printer ink and paper',
-        folderSlug: toFolderSlug('Office Supply'),
-    },
-    {
-        rowId: 'seed-rcp-1004',
-        receiptNo: 'RCP-1004',
-        date: '2026-02-23',
-        amount: 2200,
-        amountLabel: 'PHP 2200.00',
-        expenseType: 'Utilities',
-        name: 'Ana Gomez',
-        status: 'Parsed',
-        sourceText: 'Internet subscription',
-        folderSlug: toFolderSlug('Utilities Expense'),
-    },
-    {
-        rowId: 'seed-rcp-1005',
-        receiptNo: 'RCP-1005',
-        date: '2026-02-24',
-        amount: 1800,
-        amountLabel: 'PHP 1800.00',
-        expenseType: 'Accommodation',
-        name: 'Luis Mendoza',
-        status: 'Parsed',
-        sourceText: 'Hotel stay',
-        folderSlug: toFolderSlug('Rental'),
-    },
-];
+const STATIC_EXPENSE_RECEIPTS = [];
 
 /* ─── Receipt Image Lightbox ─────────────────────────────────────────────── */
 function ReceiptImageModal({ row, onClose }) {
@@ -352,6 +299,8 @@ export default function Dashboard() {
     const tableLoading = false;
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [folderSearchQuery, setFolderSearchQuery] = useState('');
+    const [folderViewMode, setFolderViewMode] = useState('tiles');
     const [selectedRows, setSelectedRows] = useState([]);
     const [expenseReceipts, setExpenseReceipts] = useState([]);
     const [editingReceipt, setEditingReceipt] = useState(null);
@@ -374,6 +323,7 @@ export default function Dashboard() {
         sourceText: '',
     });
     const debouncedSearch = useDebounce(searchQuery, 300);
+    const debouncedFolderSearch = useDebounce(folderSearchQuery, 200);
     const staticGreetingName = 'Juan';
 
     useEffect(() => {
@@ -386,7 +336,7 @@ export default function Dashboard() {
             const migrated = stored.map((row) => ({
                 ...row,
                 folderSlug: row.folderSlug || mapExpenseTypeToFolderSlug(row.expenseType),
-            }));
+            })).filter((row) => Boolean(row.imageData));
             localStorage.setItem(EXPENSE_RECEIPTS_KEY, JSON.stringify(migrated));
             setExpenseReceipts(migrated);
             return;
@@ -429,7 +379,7 @@ export default function Dashboard() {
                     ...row,
                     folderSlug: targetFolderSlug || row.folderSlug || mapExpenseTypeToFolderSlug(row.expenseType),
                 }));
-                if (parsedReceipts.length > 0) {
+                if (taggedReceipts.length > 0) {
                     setExpenseReceipts((prev) => {
                         const merged = [...taggedReceipts, ...prev];
                         const uniqueRows = [];
@@ -703,6 +653,9 @@ export default function Dashboard() {
     };
 
     if (isFolderLanding) {
+        const visibleFolders = FOLDER_ROUTE_MAP.filter((folder) =>
+            folder.name.toLowerCase().includes(debouncedFolderSearch.toLowerCase())
+        );
         return (
             <BackgroundLayout>
                 <div className="min-h-screen bg-lifewood-paper/60">
@@ -725,9 +678,51 @@ export default function Dashboard() {
                             </div>
 
                             <div className="p-1 sm:p-2">
-                                <h3 className="text-lg font-bold text-lifewood-darkSerpent mb-4">Expense Folders</h3>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {FOLDER_ROUTE_MAP.map((folder) => (
+                                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+                                    <h3 className="text-lg font-bold text-lifewood-darkSerpent">Expense Folders</h3>
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                        <div className="relative w-full sm:w-72">
+                                            <Search className="w-4 h-4 text-lifewood-asphalt/60 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                            <input
+                                                type="text"
+                                                value={folderSearchQuery}
+                                                onChange={(e) => setFolderSearchQuery(e.target.value)}
+                                                placeholder="Search folders..."
+                                                className="w-full h-10 pl-9 pr-3 rounded-xl border border-lifewood-platinum bg-white text-sm text-lifewood-darkSerpent placeholder-lifewood-asphalt/50 focus:outline-none focus:ring-2 focus:ring-lifewood-castletonGreen/20 focus:border-lifewood-castletonGreen transition-all"
+                                            />
+                                        </div>
+                                        <div className="inline-flex rounded-xl border border-lifewood-platinum bg-white p-1">
+                                            <button
+                                                onClick={() => setFolderViewMode('tiles')}
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                                                    folderViewMode === 'tiles' ? 'bg-lifewood-castletonGreen text-white' : 'text-lifewood-charcoal hover:text-lifewood-darkSerpent'
+                                                }`}
+                                            >
+                                                <LayoutGrid className="w-4 h-4" />
+                                                Tiles
+                                            </button>
+                                            <button
+                                                onClick={() => setFolderViewMode('content')}
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                                                    folderViewMode === 'content' ? 'bg-lifewood-castletonGreen text-white' : 'text-lifewood-charcoal hover:text-lifewood-darkSerpent'
+                                                }`}
+                                            >
+                                                <List className="w-4 h-4" />
+                                                Content
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {visibleFolders.length === 0 && (
+                                    <div className="py-12 text-center text-sm text-lifewood-charcoal/70">
+                                        No matching folders found.
+                                    </div>
+                                )}
+
+                                {folderViewMode === 'tiles' && visibleFolders.length > 0 && (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {visibleFolders.map((folder) => (
                                         <button
                                             key={folder.slug}
                                             onClick={() => navigate(`/Dashboard/${folder.slug}`)}
@@ -753,7 +748,52 @@ export default function Dashboard() {
                                             </div>
                                         </button>
                                     ))}
-                                </div>
+                                    </div>
+                                )}
+
+                                {folderViewMode === 'content' && visibleFolders.length > 0 && (
+                                    <div className="relative rounded-2xl border border-white/60 bg-gradient-to-br from-white/95 via-lifewood-paper/85 to-lifewood-seaSalt/85 backdrop-blur-sm overflow-hidden shadow-[0_12px_28px_rgba(22,37,24,0.16)]">
+                                        <div className="pointer-events-none absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-lifewood-goldenBrown via-lifewood-saffaron to-lifewood-earthYellow opacity-80" />
+                                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(255,255,255,0.85),rgba(255,255,255,0)_40%)]" />
+                                        {visibleFolders.map((folder, idx) => (
+                                            <button
+                                                key={folder.slug}
+                                                onClick={() => navigate(`/Dashboard/${folder.slug}`)}
+                                                className={`group relative w-full flex items-center gap-3 px-4 py-3.5 text-left
+                                                            transition-all duration-300 hover:translate-x-1
+                                                            focus:outline-none ${
+                                                    idx !== visibleFolders.length - 1 ? 'border-b border-white/70' : ''
+                                                }`}
+                                                style={{
+                                                    animation: 'fadeSlideIn 260ms ease-out forwards',
+                                                    animationDelay: `${idx * 45}ms`,
+                                                    opacity: 0,
+                                                }}
+                                            >
+                                                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[linear-gradient(105deg,rgba(255,255,255,0.65),rgba(255,255,255,0)_45%,rgba(22,101,52,0.10)_100%)]" />
+                                                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-lifewood-paper/25" />
+
+                                                <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-lifewood-saffaron/45 to-lifewood-goldenBrown/25 text-lifewood-goldenBrown flex items-center justify-center border border-lifewood-saffaron/45 shadow-sm group-hover:scale-105 transition-transform">
+                                                    <Folder className="w-5 h-5 group-hover:-rotate-3 transition-transform" />
+                                                </div>
+
+                                                <div className="relative min-w-0 flex-1">
+                                                    <p className="text-sm sm:text-base font-semibold text-lifewood-darkSerpent truncate group-hover:text-lifewood-castletonGreen transition-colors">
+                                                        {folder.name}
+                                                    </p>
+                                                    <p className="text-[11px] text-lifewood-charcoal/55 mt-0.5">
+                                                        Open folder content
+                                                    </p>
+                                                </div>
+
+                                                <div className="relative inline-flex items-center gap-1.5 text-xs font-semibold text-lifewood-charcoal/60 group-hover:text-lifewood-darkSerpent transition-colors">
+                                                    Open
+                                                    <ChevronRight className="w-4 h-4 text-lifewood-charcoal/50 group-hover:translate-x-0.5 group-hover:text-lifewood-darkSerpent transition-all" />
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </main>
                     </div>
@@ -1040,6 +1080,7 @@ export default function Dashboard() {
                                                     </button>
                                                 </th>
                                             ))}
+                                            <th className="px-4 py-3">View Image</th>
                                             <th className="px-4 py-3 text-right">Actions</th>
                                         </tr>
                                     </thead>
@@ -1047,7 +1088,7 @@ export default function Dashboard() {
                                     <tbody>
                                         {tableLoading && !hasReceiptData && (
                                             <tr>
-                                                <td colSpan={8} className="px-4 py-14 text-center">
+                                                <td colSpan={9} className="px-4 py-14 text-center">
                                                     <div className="flex flex-col items-center gap-3 text-lifewood-asphalt">
                                                         <div className="w-6 h-6 border-2 border-lifewood-castletonGreen border-t-transparent rounded-full animate-spin" />
                                                         <span className="text-sm">Loading receipts…</span>
@@ -1058,7 +1099,7 @@ export default function Dashboard() {
 
                                         {!tableLoading && sortedLedgerRows.length === 0 && (
                                             <tr>
-                                                <td colSpan={8} className="px-4 py-14 text-center text-lifewood-asphalt text-sm">
+                                                <td colSpan={9} className="px-4 py-14 text-center text-lifewood-asphalt text-sm">
                                                     {searchQuery ? 'No matching receipts found.' : 'No receipts found. Upload your first receipt to get started.'}
                                                 </td>
                                             </tr>
@@ -1080,7 +1121,7 @@ export default function Dashboard() {
                                                     <React.Fragment key={row.rowId}>
                                                         {showMonthLabel && (
                                                             <tr className="bg-lifewood-paper/50">
-                                                                <td colSpan={8} className="px-4 py-2 text-[10px] font-bold tracking-widest text-lifewood-fernGreen uppercase">
+                                                                <td colSpan={9} className="px-4 py-2 text-[10px] font-bold tracking-widest text-lifewood-fernGreen uppercase">
                                                                     {monthLabel}
                                                                 </td>
                                                             </tr>
@@ -1101,21 +1142,11 @@ export default function Dashboard() {
                                                             </td>
                                                             <td className="px-4 py-3 text-lifewood-charcoal text-sm">{formatDate(row.date)}</td>
                                                             <td className="px-4 py-3">
-                                                                <button
-                                                                    onClick={() => setViewingImage(row)}
-                                                                    className="group inline-flex items-center gap-1.5 font-semibold text-lifewood-castletonGreen
-                                                                               hover:text-lifewood-darkSerpent text-sm transition-colors
-                                                                               focus:outline-none focus:underline"
-                                                                    title={row.imageData ? 'Click to view receipt image' : 'No image attached'}
-                                                                >
-                                                                    {row.imageData
-                                                                        ? <ImageIcon className="w-3.5 h-3.5 text-lifewood-saffaron shrink-0 group-hover:scale-110 transition-transform" />
-                                                                        : <ImageOff className="w-3.5 h-3.5 text-lifewood-silver shrink-0" />
-                                                                    }
-                                                                    <span className="underline underline-offset-2 decoration-dotted group-hover:decoration-solid">
+                                                                <span className="inline-flex items-center gap-1.5 font-semibold text-lifewood-castletonGreen text-sm">
+                                                                    <span className="underline underline-offset-2 decoration-dotted">
                                                                         {row.idLabel}
                                                                     </span>
-                                                                </button>
+                                                                </span>
                                                             </td>
                                                             <td className="px-4 py-3 text-lifewood-charcoal text-sm">{row.name}</td>
                                                             <td className="px-4 py-3">
@@ -1131,6 +1162,18 @@ export default function Dashboard() {
                                                                     <span className={`w-2 h-2 rounded-full shrink-0 ${getStatusDotClass(row.status)}`} />
                                                                     <span className="text-lifewood-charcoal">{row.status}</span>
                                                                 </span>
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <button
+                                                                    onClick={() => setViewingImage(row)}
+                                                                    className="inline-flex items-center justify-center w-8 h-8 rounded-lg
+                                                                               text-lifewood-charcoal hover:text-lifewood-castletonGreen
+                                                                               hover:bg-lifewood-castletonGreen/10 border border-transparent
+                                                                               hover:border-lifewood-castletonGreen/20 transition-all"
+                                                                    title={row.imageData ? 'View receipt image' : 'No image attached'}
+                                                                >
+                                                                    <Eye className="w-3.5 h-3.5" />
+                                                                </button>
                                                             </td>
                                                             <td className="px-4 py-3">
                                                                 <div className="flex justify-end items-center gap-1">
@@ -1182,28 +1225,15 @@ export default function Dashboard() {
                 {/* ── Upload Modal ─────────────────────────────────────────────── */}
                 {showUploadModal && (
                     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl shadow-lifewood-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-thin
+                        <div className="relative bg-white rounded-2xl shadow-lifewood-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-thin
                                         border border-lifewood-platinum/50">
-                            {/* Modal header */}
-                            <div className="sticky top-0 bg-lifewood-darkSerpent px-6 py-5 rounded-t-2xl flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-xl bg-lifewood-saffaron/20 flex items-center justify-center">
-                                        <Sparkles className="w-5 h-5 text-lifewood-saffaron" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-lg font-bold text-white leading-tight">Upload Receipt</h2>
-                                        <p className="text-xs text-white/45">AI-powered expense extraction</p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => setShowUploadModal(false)}
-                                    className="text-white/60 hover:text-white hover:bg-white/10 rounded-lg p-1.5 transition-colors"
-                                >
-                                    <span className="w-5 h-5 flex justify-center items-center font-bold text-lg leading-none">×</span>
-                                </button>
-                            </div>
-                            {/* Gold accent strip */}
-                            <div className="h-[2px] bg-gradient-to-r from-lifewood-goldenBrown via-lifewood-saffaron to-transparent" />
+                            <button
+                                onClick={() => setShowUploadModal(false)}
+                                className="absolute right-3 top-3 z-10 text-lifewood-charcoal/60 hover:text-lifewood-darkSerpent hover:bg-lifewood-paper rounded-lg p-1.5 transition-colors"
+                                title="Close"
+                            >
+                                <span className="w-5 h-5 flex justify-center items-center font-bold text-lg leading-none">x</span>
+                            </button>
                             <div className="p-6">
                                 <MultiImageUploader onContinue={handleContinueUpload} />
                             </div>
@@ -1350,4 +1380,7 @@ export default function Dashboard() {
         </BackgroundLayout>
     );
 }
+
+
+
 

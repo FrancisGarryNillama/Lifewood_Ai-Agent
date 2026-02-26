@@ -1,4 +1,4 @@
-// src/pages/faculty/DepartmentHome.jsx
+// src/pages/admin/AdminOperationsPage.jsx
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import {
   AdvancedSearchBar,
   StatusBadge,
 } from '../../components/common';
-import { useDepartment } from '../../features/department/hooks/useDepartment'; 
+import { useAdminWorkflow } from '../../features/department/hooks/useAdminWorkflow'; 
 import { useDebounce } from '../../hooks';
 import { formatDate } from '../../utils';
 import { useAuthContext } from '../../context';
@@ -30,7 +30,7 @@ export default function AdminOperationsPage() {
     accepted,
     loading,
     fetchAllData,
-  } = useDepartment();
+  } = useAdminWorkflow();
   // --- End hook usage ---
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -306,4 +306,6 @@ export default function AdminOperationsPage() {
     </div>
   );
 }
+
+
 

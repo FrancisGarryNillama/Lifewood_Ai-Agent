@@ -70,3 +70,4 @@ export function useAuth() {
 
   return { login, register, logout, loading };
 }
+

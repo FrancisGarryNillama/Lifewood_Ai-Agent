@@ -27,7 +27,7 @@ export default function ExpenseInfo() {
           {/* Text */}
           <div className="text-center sm:text-left">
             <p className="text-sm sm:text-base text-gray-600 font-medium">
-              Upload your <span className="text-gray-900 font-bold">Transcript of Records</span> to begin
+              Upload your <span className="text-gray-900 font-bold">Expense Receipts</span> to begin
             </p>
           </div>
         </div>
@@ -35,3 +35,5 @@ export default function ExpenseInfo() {
     </div>
   );
 }
+
+

@@ -75,3 +75,4 @@ export default function ComparisonTable({ schoolTor, ocrResults }) {
     </div>
   );
 }
+

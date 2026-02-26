@@ -128,3 +128,4 @@ export default function FeatureCard({ icon: Icon, title, description, color = 'b
     </div>
   );
 }
+

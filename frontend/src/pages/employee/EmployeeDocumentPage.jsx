@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { GraduationCap } from 'lucide-react';
 import { Button, Loader } from '../../components/common';
-import { profileApi, torApi } from '../../api';
+import { profileApi, expenseApi } from '../../api';
 import { useNotification } from '../../hooks';
 
 export default function EmployeeDocumentPage() {
@@ -20,8 +20,8 @@ export default function EmployeeDocumentPage() {
         try {
             const [profileData, citTorData, applicantTorData] = await Promise.all([
                 profileApi.getProfile(id),
-                torApi.getCitTorContent(),
-                torApi.getCompareResultTor(id),
+                expenseApi.getCitTorContent(),
+                expenseApi.getCompareResultTor(id),
             ]);
 
             // Extract data from API responses (handle both array and {data: array} formats)
@@ -191,4 +191,6 @@ export default function EmployeeDocumentPage() {
         </div>
     );
 }
+
+
 

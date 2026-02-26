@@ -92,3 +92,4 @@ export default function ImageEditorWrapper({ image, isOpen, onClose, onSave }) {
     />
   );
 }
+

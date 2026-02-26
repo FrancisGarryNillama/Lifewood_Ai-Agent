@@ -87,3 +87,4 @@ export function ModalFooter({ children, className = '' }) {
     </div>
   );
 }
+

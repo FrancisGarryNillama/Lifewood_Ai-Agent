@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, AlertCircle, Sparkles } from 'lucide-react';
-import { torApi } from '../../../api';
+import { expenseApi } from '../../../api';
 import { Loader } from '../../../components/common';
 
 export default function SubmissionDetailsModal({ isOpen, onClose, accountId }) {
@@ -19,7 +19,7 @@ export default function SubmissionDetailsModal({ isOpen, onClose, accountId }) {
         setError(null);
         try {
             console.log('Fetching details for accountId:', accountId);
-            const response = await torApi.getCompareResultTor(accountId);
+            const response = await expenseApi.getCompareResultTor(accountId);
             console.log('Raw API response:', response);
 
             // Handle different response formats
@@ -56,7 +56,7 @@ export default function SubmissionDetailsModal({ isOpen, onClose, accountId }) {
                 <div className="p-6 bg-gradient-to-r from-lifewood-darkSerpent to-lifewood-earthYellow flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-3">
                         <Sparkles className="w-6 h-6 text-yellow-300" />
-                        <h2 className="text-xl font-bold text-white">Applicant's TOR</h2>
+                        <h2 className="text-xl font-bold text-white">Employee Expense Records</h2>
                     </div>
                     <button
                         onClick={onClose}
@@ -145,3 +145,5 @@ export default function SubmissionDetailsModal({ isOpen, onClose, accountId }) {
         </div>
     );
 }
+
+

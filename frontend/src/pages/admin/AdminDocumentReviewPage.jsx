@@ -11,7 +11,7 @@ import {
   TabNavigation,
   ConfirmDialog,
 } from '../../components/common';
-import { profileApi, torApi, requestApi } from '../../api';
+import { profileApi, expenseApi, requestApi } from '../../api';
 import { useNotification, useModal } from '../../hooks';
 
 export default function DocumentPage() {
@@ -54,8 +54,8 @@ export default function DocumentPage() {
     try {
       const [profileData, citTorData, applicantTorData] = await Promise.all([
         profileApi.getProfile(id),
-        torApi.getCitTorContent(),
-        torApi.getCompareResultTor(id),
+        expenseApi.getCitTorContent(),
+        expenseApi.getCompareResultTor(id),
       ]);
 
       // Extract data from API responses
@@ -96,7 +96,7 @@ export default function DocumentPage() {
 
   const refreshApplicantTor = async () => {
     try {
-      const data = await torApi.getCompareResultTor(id);
+      const data = await expenseApi.getCompareResultTor(id);
       const applicantTorList = Array.isArray(data) ? data : (data?.data || []);
       setApplicantTor(applicantTorList);
     } catch (error) {
@@ -107,7 +107,7 @@ export default function DocumentPage() {
   // Update Credit Evaluation
   const updateEvaluation = async (entryId, status) => {
     try {
-      await torApi.updateCreditEvaluation(entryId, status);
+      await expenseApi.updateCreditEvaluation(entryId, status);
       await refreshApplicantTor();
       showSuccess(`Credit evaluation updated to ${status}`);
     } catch (error) {
@@ -120,7 +120,7 @@ export default function DocumentPage() {
     if (!selectedEntry) return;
 
     try {
-      await torApi.updateNote(selectedEntry.id, noteText);
+      await expenseApi.updateNote(selectedEntry.id, noteText);
       await refreshApplicantTor();
       showSuccess('Note saved successfully');
       noteModal.close();
@@ -146,7 +146,7 @@ export default function DocumentPage() {
 
   const handleEditSave = async () => {
     try {
-      const updated = await torApi.updateCitTorEntry(editData);
+      const updated = await expenseApi.updateCitTorEntry(editData);
       setCitTor((prev) =>
         prev.map((item) => (item.id === updated.id ? updated : item))
       );
@@ -209,8 +209,8 @@ export default function DocumentPage() {
 
   const tabs = [
     { id: 'compare', label: 'Compare View' },
-    { id: 'school', label: "School's TOR", count: citTor.length },
-    { id: 'applicant', label: "Applicant's TOR", count: applicantTor.length },
+    { id: 'school', label: "Reference Expense Data", count: citTor.length },
+    { id: 'applicant', label: "Employee Expense Records", count: applicantTor.length },
   ];
 
   if (loading) {
@@ -255,10 +255,10 @@ export default function DocumentPage() {
       {/* Compare View */}
       {activeTab === 'compare' && (
         <div className="grid grid-cols-2 gap-4">
-          {/* School's TOR */}
+          {/* Reference Expense Data */}
           <div className="bg-white shadow border rounded-lg p-4">
             <h3 className="text-md font-semibold text-center bg-lifewood-seaSalt py-2 rounded mb-3">
-              School's TOR
+              Reference Expense Data
             </h3>
             <div className="overflow-y-auto max-h-[600px] border-t">
               <table className="min-w-full text-sm text-left">
@@ -295,11 +295,11 @@ export default function DocumentPage() {
             </div>
           </div>
 
-          {/* Applicant's TOR */}
+          {/* Employee Expense Records */}
           <div className="bg-white shadow border rounded-lg p-4">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-md font-semibold text-center bg-green-50 py-2 rounded flex-1">
-                Applicant's TOR
+                Employee Expense Records
               </h3>
             </div>
 
@@ -421,10 +421,10 @@ export default function DocumentPage() {
         </div>
       )}
 
-      {/* School's TOR Tab */}
+      {/* Reference Expense Data Tab */}
       {activeTab === 'school' && (
         <div className="bg-white shadow border rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">School's TOR</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Reference Expense Data</h3>
           <div className="overflow-y-auto max-h-[600px] border-t">
             <table className="min-w-full text-sm text-left">
               <thead className="bg-gray-100 border-b sticky top-0 z-10">
@@ -461,11 +461,11 @@ export default function DocumentPage() {
         </div>
       )}
 
-      {/* Applicant's TOR Tab */}
+      {/* Employee Expense Records Tab */}
       {activeTab === 'applicant' && (
         <div className="bg-white shadow border rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Applicant's TOR</h3>
+            <h3 className="text-lg font-semibold text-gray-800">Employee Expense Records</h3>
 
             <div className="relative">
               <button
@@ -658,3 +658,5 @@ export default function DocumentPage() {
     </div>
   );
 }
+
+

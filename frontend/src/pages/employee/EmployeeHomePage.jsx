@@ -180,39 +180,14 @@ export default function EmployeeHomePage() {
         {/* Upload Modal */}
         {showUploadModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-thin">
-              <div className="sticky top-0 bg-gradient-to-r from-lifewood-castletonGreen via-lifewood-saffaron to-lifewood-earthYellow p-6 rounded-t-2xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-8 h-8 text-white" />
-                    <h2 className="text-2xl font-bold text-white">
-                      Upload Receipt Images
-                    </h2>
-                  </div>
-                  <button
-                    onClick={() => setShowUploadModal(false)}
-                    className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-                <p className="text-white/90 mt-2">
-                  Upload receipt images for OCR processing
-                </p>
-              </div>
-
+            <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-thin border border-lifewood-platinum/50">
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="absolute right-3 top-3 z-10 text-lifewood-charcoal/60 hover:text-lifewood-darkSerpent hover:bg-lifewood-paper rounded-lg p-1.5 transition-colors"
+                title="Close"
+              >
+                <span className="w-5 h-5 flex justify-center items-center font-bold text-lg leading-none">x</span>
+              </button>
               <div className="p-6">
                 <MultiImageUploader onContinue={handleContinue} />
               </div>
@@ -313,5 +288,7 @@ export default function EmployeeHomePage() {
     </BackgroundLayout>
   );
 }
+
+
 
 

@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { useNotification } from "../../../hooks"; 
-import { torApi } from '../../../api';
+import { expenseApi } from '../../../api';
 
 export function useExpenseUpload() {
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ export function useExpenseUpload() {
     setLoading(true);
     try {
       // Backend returns: { success: true, data: { student_name, school_name, ocr_results, school_tor } }
-      const data = await torApi.uploadOcr(images, accountId);
+      const data = await expenseApi.uploadOcr(images, accountId);
       
       // Transform response to expected format
       const transformedData = {
@@ -46,7 +46,7 @@ export function useExpenseUpload() {
   const deleteOcr = async (accountId) => {
     try {
       // Backend returns: { success: true, data: { tor_deleted, compare_deleted } }
-      const data = await torApi.deleteOcr(accountId);
+      const data = await expenseApi.deleteOcr(accountId);
       showSuccess(`Deleted ${data.tor_deleted + data.compare_deleted} entries`);
       return true;
     } catch (error) {
@@ -68,3 +68,5 @@ export function useExpenseUpload() {
     reset 
   };
 }
+
+

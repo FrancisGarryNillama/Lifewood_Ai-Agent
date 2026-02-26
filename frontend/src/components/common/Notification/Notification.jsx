@@ -91,3 +91,4 @@ export function Notification({ type = 'info', message, onClose, show }) {
     </div>
   );
 }
+

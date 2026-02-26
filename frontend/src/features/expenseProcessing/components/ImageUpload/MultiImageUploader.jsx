@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, X, Upload, Image as ImageIcon, CheckCircle2, Camera } from 'lucide-react';
 import { generateId } from '../../../../utils';
 import { Button } from '../../../../components/common';
@@ -6,9 +6,16 @@ import { Button } from '../../../../components/common';
 export default function MultiImageUploader({ onContinue }) {
   const [images, setImages] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState('');
   const dragIndex = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(
+    typeof navigator !== 'undefined' ? navigator.userAgent : ''
+  );
 
   const addFiles = (fileList) => {
     const files = Array.from(fileList || []);
@@ -67,6 +74,87 @@ export default function MultiImageUploader({ onContinue }) {
     }
   };
 
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const openCamera = async () => {
+    setCameraError('');
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setCameraError('Camera is not supported on this browser.');
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      setCameraOpen(true);
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(() => {});
+        }
+      }, 0);
+    } catch (err) {
+      setCameraError(err?.message || 'Unable to open camera.');
+    }
+  };
+
+  const handleTakePhoto = (e) => {
+    e.stopPropagation();
+    // On mobile/tablet prefer native camera app for best browser compatibility.
+    if (isMobileDevice) {
+      cameraInputRef.current?.click();
+      return;
+    }
+    // On desktop open in-app live camera modal.
+    openCamera();
+  };
+
+  const closeCamera = () => {
+    setCameraOpen(false);
+    stopCamera();
+  };
+
+  const captureFromCamera = async () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const width = video.videoWidth || 1280;
+    const height = video.videoHeight || 720;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0, width, height);
+    const src = canvas.toDataURL('image/jpeg', 0.92);
+    const blob = await (await fetch(src)).blob();
+    const fileName = `camera-${Date.now()}.jpg`;
+    const file = new File([blob], fileName, { type: 'image/jpeg' });
+    setImages((prev) => [
+      ...prev,
+      {
+        id: generateId(),
+        src,
+        name: fileName,
+        file,
+      },
+    ]);
+    closeCamera();
+  };
+
+  useEffect(() => {
+    return () => stopCamera();
+  }, []);
+
   return (
     <div className="relative">
       {/* Background glow */}
@@ -80,7 +168,7 @@ export default function MultiImageUploader({ onContinue }) {
             <div>
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white flex items-center gap-2">
                 <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-                Upload Transcript Images
+                Upload Receipt Images
               </h2>
               <p className="text-lifewood-paper text-xs sm:text-sm mt-0.5">
                 {images.length > 0
@@ -137,7 +225,7 @@ export default function MultiImageUploader({ onContinue }) {
               </div>
 
               <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">
-                {isDragging ? 'Drop images here' : 'Upload Your Transcript'}
+                {isDragging ? 'Drop images here' : 'Upload Receipt Images'}
               </h3>
 
               <p className="text-xs sm:text-sm text-gray-600 text-center max-w-md">
@@ -152,7 +240,7 @@ export default function MultiImageUploader({ onContinue }) {
             </div>
           </div>
 
-          {/* Camera capture (useful on mobile) */}
+          {/* Camera capture */}
           <input
             ref={cameraInputRef}
             type="file"
@@ -163,7 +251,7 @@ export default function MultiImageUploader({ onContinue }) {
           />
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); cameraInputRef.current?.click(); }}
+            onClick={handleTakePhoto}
             className="mt-3 w-full flex items-center justify-center gap-2.5 px-4 py-3
                        rounded-xl border-2 border-dashed border-lifewood-castletonGreen/30
                        bg-lifewood-castletonGreen/5 hover:bg-lifewood-castletonGreen/10
@@ -175,6 +263,52 @@ export default function MultiImageUploader({ onContinue }) {
             </div>
             <span>Take Photo with Camera</span>
           </button>
+          {!isMobileDevice && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                cameraInputRef.current?.click();
+              }}
+              className="mt-2 w-full text-xs text-lifewood-charcoal/70 hover:text-lifewood-darkSerpent underline underline-offset-2"
+            >
+              Use device camera app instead
+            </button>
+          )}
+          {cameraError && (
+            <p className="mt-2 text-xs text-red-600">{cameraError}</p>
+          )}
+          {cameraOpen && (
+            <div className="mt-3 rounded-xl border border-lifewood-castletonGreen/25 bg-white overflow-hidden">
+              <div className="px-3 py-2 bg-lifewood-darkSerpent flex items-center justify-between">
+                <h4 className="text-white text-sm font-semibold">Camera Capture</h4>
+                <button
+                  type="button"
+                  onClick={closeCamera}
+                  className="text-white/80 hover:text-white"
+                  title="Close camera"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-2 bg-black">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full max-h-[40vh] object-contain rounded-lg"
+                />
+              </div>
+              <div className="p-3 flex items-center justify-end gap-2">
+                <Button variant="outline" onClick={closeCamera}>Cancel</Button>
+                <Button onClick={captureFromCamera} className="inline-flex items-center gap-2">
+                  <Camera className="w-4 h-4" />
+                  Capture Photo
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Thumbnails Grid - Scrollable with Fixed Max Height */}
           {images.length > 0 && (
@@ -262,6 +396,9 @@ export default function MultiImageUploader({ onContinue }) {
           )}
         </div>
       </div>
+
     </div>
   );
 }
+
+

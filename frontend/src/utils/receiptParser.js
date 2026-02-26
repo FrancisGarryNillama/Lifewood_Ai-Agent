@@ -11,12 +11,18 @@ const AMOUNT_PATTERNS = [
 ];
 
 const TYPE_RULES = [
-  { type: 'Meals', keywords: ['restaurant', 'cafe', 'coffee', 'food', 'meal', 'dining', 'snack'] },
-  { type: 'Travel', keywords: ['taxi', 'grab', 'uber', 'bus', 'train', 'flight', 'airline', 'transport'] },
-  { type: 'Fuel', keywords: ['fuel', 'gasoline', 'diesel', 'petrol', 'shell', 'caltex', 'petron'] },
+  { type: 'Meals & Entertainment', keywords: ['restaurant', 'cafe', 'coffee', 'food', 'meal', 'dining', 'snack', 'entertainment'] },
+  { type: 'Transportation & Travel', keywords: ['taxi', 'grab', 'uber', 'bus', 'train', 'flight', 'airline', 'transport', 'fuel', 'gasoline', 'diesel', 'petrol'] },
   { type: 'Office Supplies', keywords: ['paper', 'printer', 'stapler', 'office', 'stationery', 'supply'] },
   { type: 'Utilities', keywords: ['electric', 'water', 'internet', 'utility', 'billing', 'telecom'] },
-  { type: 'Accommodation', keywords: ['hotel', 'inn', 'lodging', 'airbnb'] },
+  { type: 'Communication', keywords: ['phone', 'mobile', 'communication', 'data plan', 'sim', 'load'] },
+  { type: 'Repirs & Maintenance', keywords: ['repair', 'maintenance', 'service fee'] },
+  { type: 'Professional Fees', keywords: ['professional fee', 'consulting', 'legal', 'audit', 'retainer'] },
+  { type: 'Rent', keywords: ['rent', 'lease', 'accommodation', 'hotel', 'inn', 'lodging', 'airbnb'] },
+  { type: 'Advertising & Promotion', keywords: ['advertising', 'promotion', 'marketing', 'campaign'] },
+  { type: 'Taxes & Licenses', keywords: ['tax', 'license', 'permit'] },
+  { type: 'Insurance', keywords: ['insurance', 'premium'] },
+  { type: 'Salaries & wages', keywords: ['salary', 'wage', 'payroll'] },
 ];
 
 function normalizeText(value) {
@@ -91,7 +97,7 @@ function classifyExpense(rawText, item) {
       return rule.type;
     }
   }
-  return 'Other';
+  return 'Admin Expense';
 }
 
 export function parseExpenseReceiptsFromOcr(payload, userName = '', options = {}) {
@@ -126,5 +132,7 @@ export function parseExpenseReceiptsFromOcr(payload, userName = '', options = {}
       imageData,
       imageName,
     };
-  });
+  }).filter((row) => Boolean(row.imageData));
 }
+
+

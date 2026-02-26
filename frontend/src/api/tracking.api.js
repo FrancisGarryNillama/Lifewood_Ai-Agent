@@ -37,13 +37,14 @@ export const trackingApi = {
   },
 
   /**
-   * Get tracker accreditation details
-   * Returns array of accreditation entries
+   * Get tracker expense processing details
+   * Returns array of expense processing entries
    */
-  getTrackerAccreditation: async (accountId) => {
-    const response = await apiClient.get(API_ENDPOINTS.TRACKER_ACCREDITATION, {
+  getTrackerExpenseProcessing: async (accountId) => {
+    const response = await apiClient.get(API_ENDPOINTS.TRACKER_EXPENSE_PROCESSING, {
       account_id: accountId,
     });
     return extractArray(response.data);
   },
 };
+

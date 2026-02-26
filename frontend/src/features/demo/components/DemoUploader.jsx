@@ -78,7 +78,7 @@ export default function DemoUploader({ onProcess }) {
               <p className="text-lifewood-paper text-xs sm:text-sm mt-0.5">
                 {images.length > 0
                   ? `${images.length} image${images.length > 1 ? 's' : ''} selected`
-                  : 'Upload transcript images and see the magic'}
+                  : 'Upload Receipt Images and see the magic'}
               </p>
             </div>
             {images.length > 0 && (
@@ -130,7 +130,7 @@ export default function DemoUploader({ onProcess }) {
               </div>
 
               <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">
-                {isDragging ? 'Drop images here' : 'Upload Your Transcript'}
+                {isDragging ? 'Drop images here' : 'Upload Receipt Images'}
               </h3>
 
               <p className="text-xs sm:text-sm text-gray-600 text-center max-w-md">
@@ -234,3 +234,5 @@ export default function DemoUploader({ onProcess }) {
     </div>
   );
 }
+
+

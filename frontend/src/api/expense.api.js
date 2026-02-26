@@ -3,7 +3,7 @@ import { apiClient } from './client';
 import { API_ENDPOINTS } from './config';
 import { extractData, extractArray } from './helpers';
 
-export const torApi = {
+export const expenseApi = {
   /**
    * Upload OCR images for processing
    * Returns: { student_name, school_name, ocr_results: [...], school_tor: [...] }
@@ -132,3 +132,5 @@ export const torApi = {
     return extractData(response.data);
   },
 };
+
+

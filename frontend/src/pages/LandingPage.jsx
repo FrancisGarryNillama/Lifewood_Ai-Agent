@@ -156,13 +156,11 @@ export default function LandingPage() {
           {/* Headline */}
           <div className="mb-6 flex flex-col items-center text-center">
             <h1 className="text-3xl lg:text-[2.5rem] font-extrabold text-white leading-[1.15] tracking-tight mx-auto">
-              Employee<br />
+              Lifewood<br />
               <span
                 className="text-transparent bg-clip-text"
                 style={{ backgroundImage: 'linear-gradient(90deg, #FFB347 0%, #FFCF77 60%, #E09020 100%)' }}
-              >
-                Document
-              </span>
+              >Expense</span>
               <br />Portal
             </h1>
             <p className="mt-3 text-white/50 text-[13px] leading-relaxed max-w-[520px] text-justify mx-auto">
@@ -215,13 +213,13 @@ export default function LandingPage() {
       </div>
 
       {/* ── RIGHT PANEL (auth forms) ─────────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 lg:py-0 bg-white">
-        <div className="w-full max-w-md animate-fade-up">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 lg:py-0 bg-gradient-to-br from-white via-lifewood-paper/30 to-lifewood-seaSalt/35">
+        <div className="w-full max-w-md animate-fade-up rounded-3xl border border-lifewood-platinum/70 bg-white/92 backdrop-blur-sm shadow-[0_18px_40px_rgba(19,48,32,0.12)] p-6 sm:p-7">
 
           {/* Welcome heading */}
           <div className="mb-8">
             <h2 className="text-2xl lg:text-3xl font-extrabold text-lifewood-darkSerpent">
-              {activeForm === 'login' ? 'Welcome back 👋' : 'Request Access'}
+              {activeForm === 'login' ? 'Welcome' : 'Request Access'}
             </h2>
             <p className="mt-1.5 text-sm text-lifewood-charcoal">
               {activeForm === 'login'
@@ -307,3 +305,6 @@ export default function LandingPage() {
     </div>
   );
 }
+
+
+
