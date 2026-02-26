@@ -31,7 +31,7 @@ export default function LandingHeader() {
           {/* Logo Section - Responsive */}
           <div className="flex items-center group cursor-pointer">
             <img
-              src="/lifewood-logo.png"
+              src="/assets/images/lifewood-logo.png"
               alt="Lifewood Logo"
               className="h-8 sm:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />

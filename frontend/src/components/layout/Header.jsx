@@ -291,9 +291,10 @@ export default function Header({ toggleSidebar, userName }) {
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <img
-              src="/lifewood-logo.png"
+              src="/assets/images/lifewood-logo.png"
               alt="Lifewood"
-              className="h-7 sm:h-8 w-auto object-contain brightness-0 invert"
+              title="Lifewood"
+              className="h-7 sm:h-8 w-auto object-contain"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
             <div className="hidden sm:flex flex-col">

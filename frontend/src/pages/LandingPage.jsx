@@ -90,7 +90,7 @@ export default function LandingPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-10 lg:mb-14">
             <img
-              src="/lifewood-logo.png"
+              src="/assets/images/lifewood-logo.png"
               alt="Lifewood"
               className="h-10 w-auto drop-shadow-lg"
               onError={(e) => {
