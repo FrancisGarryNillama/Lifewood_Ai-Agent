@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Header,
-  SidebarStudent,
+  SidebarEmployee,
   BackgroundLayout,
 } from '../../components/layout';
 
@@ -10,16 +10,16 @@ import {
   ImagePreviewPanel,
   ImageEditorWrapper,
   ExtractedPanel,
-  TorInfo,
-  useTorUpload,
-} from '../../features/transcript';
+  ExpenseInfo,
+  useExpenseUpload,
+} from '../../features/expenseProcessing';
 import { ProfilePanel, useProfile } from '../../features/profile';
 import { SubmissionsList } from '../../features/tracking';
 import { useModal, useNotification } from '../../hooks';
 import { useAuthContext } from '../../context';
 import { Upload, Sparkles } from 'lucide-react';
 
-export default function HomePage() {
+export default function EmployeeHomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [editingImage, setEditingImage] = useState(null);
@@ -35,7 +35,7 @@ export default function HomePage() {
   const editorModal = useModal();
   const resultsModal = useModal();
 
-  const { uploadOcr, loading, ocrResults } = useTorUpload();
+  const { uploadOcr, loading, ocrResults } = useExpenseUpload();
 
   // Profile check
   const { profileExists, loading: profileLoading, checkExists, checkComplete } = useProfile(userName, user?.role);
@@ -46,7 +46,7 @@ export default function HomePage() {
     if (checkComplete && !profileExists && !profileLoading) {
       profileModal.open();
     }
-  }, [checkComplete, profileExists, profileLoading]);
+  }, [checkComplete, profileExists, profileLoading, profileModal]);
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
@@ -79,7 +79,7 @@ export default function HomePage() {
       setShowProcessingModal(false);
 
       // Validate response
-      if (result && result.ocr_results && result.school_tor) {
+      if (result && result.ocr_results) {
         setTimeout(() => {
           resultsModal.open();
         }, 100);
@@ -135,11 +135,8 @@ export default function HomePage() {
 
         {/* Content */}
         <div className="relative z-10">
-          <Header toggleSidebar={toggleSidebar} userName={userName} onOpenProfile={profileModal.open} />
-          <SidebarStudent
-            sidebarOpen={sidebarOpen}
-            onOpenProfile={profileModal.open}
-          />
+          <Header toggleSidebar={toggleSidebar} userName={userName} />
+          <SidebarEmployee sidebarOpen={sidebarOpen} />
 
           {sidebarOpen && (
             <div
@@ -150,7 +147,7 @@ export default function HomePage() {
 
           <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12">
             <div className="mt-4 sm:mt-6">
-              <TorInfo />
+              <ExpenseInfo />
             </div>
 
             <SubmissionsList userName={userName} />
@@ -159,7 +156,7 @@ export default function HomePage() {
               <button
                 onClick={() => {
                   if (!profileExists) {
-                    showError("Please Fill the Profile located upper left corner");
+                    showError("Please complete your profile from the top navigation");
                     return;
                   }
                   setShowUploadModal(true);
@@ -171,7 +168,7 @@ export default function HomePage() {
                 <div className="relative flex items-center gap-3">
                   <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 animate-pulse" />
                   <span className="text-lg sm:text-xl md:text-2xl">
-                    Upload Transcript Images
+                    Upload Receipt Images
                   </span>
                   <Upload className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
@@ -189,7 +186,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-3">
                     <Sparkles className="w-8 h-8 text-white" />
                     <h2 className="text-2xl font-bold text-white">
-                      Upload Your Transcript
+                      Upload Receipt Images
                     </h2>
                   </div>
                   <button
@@ -212,7 +209,7 @@ export default function HomePage() {
                   </button>
                 </div>
                 <p className="text-white/90 mt-2">
-                  Upload images of your transcript for processing
+                  Upload receipt images for OCR processing
                 </p>
               </div>
 
@@ -316,3 +313,5 @@ export default function HomePage() {
     </BackgroundLayout>
   );
 }
+
+

@@ -5,7 +5,7 @@ import { Button, Loader } from '../../components/common';
 import { profileApi, torApi } from '../../api';
 import { useNotification } from '../../hooks';
 
-export default function FinalDocumentPage() {
+export default function AdminFinalizedReportsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -69,7 +69,7 @@ export default function FinalDocumentPage() {
           <GraduationCap className="h-6 w-6 text-white" />
         </div>
         <h1 className="text-2xl font-bold text-gray-800">
-          Final Accepted Document
+          Final Expense Document
           {profile?.name ? ` — ${profile.name}` : ''}
         </h1>
       </div>
@@ -91,7 +91,7 @@ export default function FinalDocumentPage() {
               <strong>Phone:</strong> {profile.phone}
             </p>
             <p>
-              <strong>School:</strong> {profile.school_name}
+              <strong>Company:</strong> {profile.school_name}
             </p>
             <p>
               <strong>User ID:</strong> {profile.user_id}
@@ -107,7 +107,7 @@ export default function FinalDocumentPage() {
         {/* CIT TOR */}
         <div className="bg-white shadow border rounded-lg p-4">
           <h3 className="text-md font-semibold text-gray-800 mb-3">
-            School's TOR
+            Company Expense Rules
           </h3>
           <div className="overflow-y-auto max-h-[400px] border-t">
             <table className="min-w-full text-sm text-left">
@@ -134,7 +134,7 @@ export default function FinalDocumentPage() {
                 ) : (
                   <tr>
                     <td colSpan="3" className="px-3 py-3 text-center text-gray-500">
-                      No school TOR found.
+                      No company expense rule records found.
                     </td>
                   </tr>
                 )}
@@ -146,7 +146,7 @@ export default function FinalDocumentPage() {
         {/* Applicant TOR */}
         <div className="bg-white shadow border rounded-lg p-4">
           <h3 className="text-md font-semibold text-gray-800 mb-3">
-            Applicant's TOR
+            Employee Expense Items
           </h3>
           <div className="overflow-y-auto max-h-[400px] border-t">
             <table className="min-w-full text-sm text-left">
@@ -182,7 +182,7 @@ export default function FinalDocumentPage() {
                 ) : (
                   <tr>
                     <td colSpan="6" className="px-3 py-3 text-center text-gray-500">
-                      No applicant TOR found.
+                      No employee expense records found.
                     </td>
                   </tr>
                 )}
@@ -194,7 +194,7 @@ export default function FinalDocumentPage() {
 
       {/* Back Button */}
       <div className="flex justify-end mt-8">
-        <Button onClick={() => navigate('/DepartmentHome')}>
+        <Button onClick={() => navigate('/Dashboard')}>
           Back to Dashboard
         </Button>
       </div>

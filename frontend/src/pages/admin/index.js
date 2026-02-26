@@ -1,4 +1,4 @@
-export { default as DepartmentHome } from './DepartmentHome';
-export { default as RequestPage } from './RequestPage';
-export { default as DocumentPage } from './DocumentPage';
-export { default as FinalDocumentPage } from './FinalDocumentPage';
+export { default as AdminOperationsPage } from './AdminOperationsPage';
+export { default as AdminRequestReviewPage } from './AdminRequestReviewPage';
+export { default as AdminDocumentReviewPage } from './AdminDocumentReviewPage';
+export { default as AdminFinalizedReportsPage } from './AdminFinalizedReportsPage';

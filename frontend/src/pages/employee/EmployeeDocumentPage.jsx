@@ -5,7 +5,7 @@ import { Button, Loader } from '../../components/common';
 import { profileApi, torApi } from '../../api';
 import { useNotification } from '../../hooks';
 
-export default function StudentDocumentPage() {
+export default function EmployeeDocumentPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
@@ -69,7 +69,7 @@ export default function StudentDocumentPage() {
                     <GraduationCap className="h-6 w-6 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-800">
-                    Final Accepted Document
+                    Final Expense Document
                 </h1>
             </div>
 
@@ -77,7 +77,7 @@ export default function StudentDocumentPage() {
             {profile ? (
                 <div className="bg-white shadow border rounded-lg p-4 mb-6">
                     <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                        Student Information
+                        Employee Information
                     </h2>
                     <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
                         <p>
@@ -90,7 +90,7 @@ export default function StudentDocumentPage() {
                             <strong>Phone:</strong> {profile.phone}
                         </p>
                         <p>
-                            <strong>School:</strong> {profile.school_name}
+                            <strong>Company:</strong> {profile.school_name}
                         </p>
                         <p>
                             <strong>User ID:</strong> {profile.user_id}
@@ -98,7 +98,7 @@ export default function StudentDocumentPage() {
                     </div>
                 </div>
             ) : (
-                <p className="text-gray-500 mb-6">Loading student info...</p>
+                <p className="text-gray-500 mb-6">Loading employee info...</p>
             )}
 
             {/* Tables */}
@@ -106,7 +106,7 @@ export default function StudentDocumentPage() {
                 {/* CIT TOR */}
                 <div className="bg-white shadow border rounded-lg p-4">
                     <h3 className="text-md font-semibold text-gray-800 mb-3">
-                        School's TOR
+                        Company Expense Rules
                     </h3>
                     <div className="overflow-y-auto max-h-[400px] border-t">
                         <table className="min-w-full text-sm text-left">
@@ -133,7 +133,7 @@ export default function StudentDocumentPage() {
                                 ) : (
                                     <tr>
                                         <td colSpan="3" className="px-3 py-3 text-center text-gray-500">
-                                            No school TOR found.
+                                            No company expense rule records found.
                                         </td>
                                     </tr>
                                 )}
@@ -145,7 +145,7 @@ export default function StudentDocumentPage() {
                 {/* Applicant TOR */}
                 <div className="bg-white shadow border rounded-lg p-4">
                     <h3 className="text-md font-semibold text-gray-800 mb-3">
-                        Your TOR
+                        Your Expense Items
                     </h3>
                     <div className="overflow-y-auto max-h-[400px] border-t">
                         <table className="min-w-full text-sm text-left">
@@ -172,7 +172,7 @@ export default function StudentDocumentPage() {
                                 ) : (
                                     <tr>
                                         <td colSpan="5" className="px-3 py-3 text-center text-gray-500">
-                                            No applicant TOR found.
+                                            No processed expense records found.
                                         </td>
                                     </tr>
                                 )}
@@ -184,10 +184,11 @@ export default function StudentDocumentPage() {
 
             {/* Back Button */}
             <div className="flex justify-end mt-8">
-                <Button onClick={() => navigate('/HomePage')}>
+                <Button onClick={() => navigate('/Dashboard')}>
                     Back to Dashboard
                 </Button>
             </div>
         </div>
     );
 }
+

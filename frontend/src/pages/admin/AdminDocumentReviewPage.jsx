@@ -165,7 +165,7 @@ export default function DocumentPage() {
       const status = 'Pending';
       await requestApi.updateRequestStatus(id, status);
       showSuccess(`Status updated to "${status}" successfully.`);
-      setTimeout(() => navigate('/DepartmentHome'), 1000);
+      setTimeout(() => navigate('/Dashboard'), 1000);
     } catch (error) {
       showError(error.message || 'Failed to update status');
     } finally {
@@ -179,14 +179,14 @@ export default function DocumentPage() {
     try {
       await requestApi.finalizeRequest(id);
       showSuccess('Request finalized successfully.');
-      setTimeout(() => navigate('/DepartmentHome'), 1000);
+      setTimeout(() => navigate('/Dashboard'), 1000);
     } catch (error) {
       console.error('Finalize error:', error);
 
       // Check if it's the multiple submissions error
       if (error.message && error.message.includes('returned more than one')) {
         showError(
-          `Cannot finalize: Student "${id}" has multiple pending requests. ` +
+          `Cannot finalize: Employee "${id}" has multiple pending requests. ` +
           `Please contact the system administrator to resolve this issue. ` +
           `(Backend needs to be updated to handle individual requests)`
         );

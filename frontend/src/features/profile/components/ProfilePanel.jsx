@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, Save } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 import { useProfile } from '../hooks/useProfile';
 import ProfileForm from './ProfileForm';
 
@@ -106,7 +106,7 @@ export default function ProfilePanel({ userId, userRole, isOpen, onClose, onSave
               {loading ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Saving…
+                  Saving...
                 </>
               ) : (
                 <>

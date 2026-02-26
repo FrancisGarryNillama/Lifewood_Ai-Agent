@@ -26,20 +26,20 @@ export const ROUTES = {
   REGISTER: '/RegisterPage',
   
   // Student
-  HOME: '/HomePage',
+  HOME: '/Dashboard',
   PROFILE: '/profile',
   ABOUT: '/AboutUsPage',
   
   // Faculty
-  DEPARTMENT_HOME: '/DepartmentHome',
+  ADMIN_DASHBOARD: '/Dashboard',
   REQUEST: '/request/:id',
   DOCUMENT: '/document/:id',
   FINAL_DOCUMENT: '/finalDocument/:id',
 };
 
 export const USER_ROLES = {
-  STUDENT: 'Student',
-  FACULTY: 'Faculty',
+  EMPLOYEE: 'Employee',
+  ADMIN: 'Admin',
 };
 
 export const REQUEST_STATUS = {

@@ -5,7 +5,7 @@ import { Button, Loader, ConfirmDialog } from '../../components/common';
 import { profileApi, torApi, requestApi } from '../../api';
 import { useNotification } from '../../hooks';
 
-export default function RequestPage() {
+export default function AdminRequestReviewPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -65,7 +65,7 @@ export default function RequestPage() {
     try {
       await requestApi.acceptRequest(id);
       showSuccess('Request accepted and moved to Pending Requests.');
-      setTimeout(() => navigate('/DepartmentHome'), 1500);
+      setTimeout(() => navigate('/Dashboard'), 1500);
     } catch (error) {
       showError(error.message || 'Failed to accept request');
     } finally {
@@ -79,7 +79,7 @@ export default function RequestPage() {
     try {
       await requestApi.denyRequest(id);
       showSuccess('Request denied successfully.');
-      setTimeout(() => navigate('/DepartmentHome'), 1500);
+      setTimeout(() => navigate('/Dashboard'), 1500);
     } catch (error) {
       showError(error.message || 'Failed to deny request');
     } finally {
@@ -123,7 +123,7 @@ export default function RequestPage() {
               <strong>Phone:</strong> {profile.phone}
             </p>
             <p>
-              <strong>School:</strong> {profile.school_name}
+              <strong>Company:</strong> {profile.school_name}
             </p>
             <p>
               <strong>User ID:</strong> {profile.user_id}
@@ -139,7 +139,7 @@ export default function RequestPage() {
         {/* CIT TOR */}
         <div className="bg-white shadow border rounded-lg p-4">
           <h3 className="text-md font-semibold text-gray-800 mb-3">
-            School's TOR
+            Company Expense Rules
           </h3>
           <div className="overflow-y-auto max-h-[400px] border-t">
             <table className="min-w-full text-sm text-left">
@@ -166,7 +166,7 @@ export default function RequestPage() {
                 ) : (
                   <tr>
                     <td colSpan="3" className="px-3 py-3 text-center text-gray-500">
-                      No school TOR found.
+                      No company expense rule records found.
                     </td>
                   </tr>
                 )}
@@ -178,7 +178,7 @@ export default function RequestPage() {
         {/* Applicant TOR */}
         <div className="bg-white shadow border rounded-lg p-4">
           <h3 className="text-md font-semibold text-gray-800 mb-3">
-            Applicant's TOR
+            Employee Expense Items
           </h3>
           <div className="overflow-y-auto max-h-[400px] border-t">
             <table className="min-w-full text-sm text-left">
@@ -225,7 +225,7 @@ export default function RequestPage() {
                 ) : (
                   <tr>
                     <td colSpan="6" className="px-3 py-3 text-center text-gray-500">
-                      No applicant TOR found.
+                      No employee expense records found.
                     </td>
                   </tr>
                 )}
@@ -237,7 +237,7 @@ export default function RequestPage() {
 
       {/* Bottom Buttons */}
       <div className="flex justify-end gap-4 mt-8">
-        <Button variant="outline" onClick={() => navigate('/DepartmentHome')}>
+        <Button variant="outline" onClick={() => navigate('/Dashboard')}>
           Cancel
         </Button>
 
