@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FileText } from 'lucide-react';
 
-export default function TorInfo() {
+export default function ExpenseInfo() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

@@ -1,2 +1,2 @@
-export { default as HomePage } from './HomePage';
-export { default as StudentDocumentPage } from './StudentDocumentPage';
+export { default as EmployeeHomePage } from './EmployeeHomePage';
+export { default as EmployeeDocumentPage } from './EmployeeDocumentPage';

@@ -3,7 +3,7 @@ import { Home, LogOut, Info } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../features/auth';
 
-export default function SidebarStudent({ sidebarOpen }) {
+export default function SidebarEmployee({ sidebarOpen }) {
   const { logout, loading } = useAuth();
   const { pathname } = useLocation();
 
@@ -13,7 +13,7 @@ export default function SidebarStudent({ sidebarOpen }) {
   };
 
   const navLinks = [
-    { to: '/HomePage', icon: Home, label: 'Home' },
+    { to: '/Dashboard', icon: Home, label: 'Home' },
     { to: '/AboutUsPage', icon: Info, label: 'About Us' },
   ];
 
@@ -60,7 +60,7 @@ export default function SidebarStudent({ sidebarOpen }) {
           >
             <span className="w-1 h-5 rounded-full bg-transparent group-hover:bg-red-400/40 transition-all" />
             <LogOut className="w-4 h-4 shrink-0" />
-            {loading ? 'Signing out…' : 'Sign Out'}
+            {loading ? 'Signing out...' : 'Sign Out'}
           </button>
         </div>
       </aside>
@@ -74,3 +74,4 @@ export default function SidebarStudent({ sidebarOpen }) {
     </>
   );
 }
+

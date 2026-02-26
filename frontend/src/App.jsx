@@ -4,12 +4,12 @@ import { ProtectedRoute } from './components/common';
 import { AuthProvider, NotificationProvider } from './context';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
-import { StudentDocumentPage } from './pages/student';
+import { EmployeeDocumentPage } from './pages/employee';
 import {
-  DocumentPage,
-  FinalDocumentPage,
-  RequestPage,
-} from './pages/faculty';
+  AdminDocumentReviewPage,
+  AdminFinalizedReportsPage,
+  AdminRequestReviewPage,
+} from './pages/admin';
 
 function AppContent() {
   return (
@@ -26,13 +26,21 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/Dashboard/:folderSlug"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Document and Request Routes */}
       <Route
-        path="/student/finalDocument/:id"
+        path="/employee/finalDocument/:id"
         element={
           <ProtectedRoute>
-            <StudentDocumentPage />
+            <EmployeeDocumentPage />
           </ProtectedRoute>
         }
       />
@@ -40,7 +48,7 @@ function AppContent() {
         path="/request/:id"
         element={
           <ProtectedRoute>
-            <RequestPage />
+            <AdminRequestReviewPage />
           </ProtectedRoute>
         }
       />
@@ -48,7 +56,7 @@ function AppContent() {
         path="/document/:id"
         element={
           <ProtectedRoute>
-            <DocumentPage />
+            <AdminDocumentReviewPage />
           </ProtectedRoute>
         }
       />
@@ -56,7 +64,7 @@ function AppContent() {
         path="/finalDocument/:id"
         element={
           <ProtectedRoute>
-            <FinalDocumentPage />
+            <AdminFinalizedReportsPage />
           </ProtectedRoute>
         }
       />

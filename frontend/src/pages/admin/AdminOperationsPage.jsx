@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Header, SidebarFaculty } from '../../components/layout';
+import { Header, SidebarAdmin } from '../../components/layout';
 import {
   Button,
   DataTable,
@@ -15,7 +15,7 @@ import { formatDate } from '../../utils';
 import { useAuthContext } from '../../context';
 import { FileText, Users, CheckCircle } from 'lucide-react';
 
-export default function DepartmentHome() {
+export default function AdminOperationsPage() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('requests');
@@ -185,7 +185,7 @@ export default function DepartmentHome() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} userName={userName} />
-      <SidebarFaculty sidebarOpen={sidebarOpen} />
+      <SidebarAdmin sidebarOpen={sidebarOpen} />
 
       {sidebarOpen && (
         <div
@@ -197,10 +197,10 @@ export default function DepartmentHome() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Department Dashboard
+            Admin Dashboard
           </h1>
           <p className="text-base sm:text-lg text-gray-600">
-            Manage student accreditation requests and applications
+            Manage employee account requests and expense applications
           </p>
         </div>
 
@@ -306,3 +306,4 @@ export default function DepartmentHome() {
     </div>
   );
 }
+

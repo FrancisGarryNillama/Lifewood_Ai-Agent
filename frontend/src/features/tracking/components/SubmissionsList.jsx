@@ -226,7 +226,7 @@ export default function SubmissionsList({ userName }) {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation(); // prevent collapsing the card
-                                                    navigate(`/student/finalDocument/${userName}`);
+                                                    navigate(`/employee/finalDocument/${userName}`);
                                                 }}
                                                 className="px-4 py-2 bg-lifewood-castletonGreen text-white text-sm font-medium rounded hover:bg-lifewood-darkSerpent transition-colors"
                                             >
@@ -243,3 +243,4 @@ export default function SubmissionsList({ userName }) {
         </div >
     );
 }
+

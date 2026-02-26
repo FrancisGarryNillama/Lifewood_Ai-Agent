@@ -1,4 +1,4 @@
-// frontend/src/features/transcript/hooks/useTorUpload.js
+// frontend/src/features/transcript/hooks/useExpenseUpload.js
 /**
  * TOR Upload hook - Updated for new backend
  */
@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useNotification } from "../../../hooks"; 
 import { torApi } from '../../../api';
 
-export function useTorUpload() {
+export function useExpenseUpload() {
   const [loading, setLoading] = useState(false);
   const [ocrResults, setOcrResults] = useState(null);
   const { showError, showSuccess } = useNotification();

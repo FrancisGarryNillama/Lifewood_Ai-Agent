@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Header, BackgroundLayout } from '../components/layout';
 
 // Upload features
@@ -8,19 +9,48 @@ import {
     ImagePreviewPanel,
     ImageEditorWrapper,
     ExtractedPanel,
-    useTorUpload,
-} from '../features/transcript';
+    useExpenseUpload,
+} from '../features/expenseProcessing';
 import { ProfilePanel, useProfile } from '../features/profile';
 import { useModal, useNotification, useDebounce } from '../hooks';
 import { useAuthContext } from '../context';
-import { Upload, Sparkles, Search, Download, Pencil, Trash2, X, ZoomIn, ZoomOut, ImageOff, Image as ImageIcon, SlidersHorizontal, ChevronDown, ChevronUp, RotateCcw, ArrowUpDown } from 'lucide-react';
+import { Upload, Sparkles, Search, Download, Pencil, Trash2, X, ZoomIn, ZoomOut, ImageOff, Image as ImageIcon, SlidersHorizontal, ChevronDown, ChevronUp, RotateCcw, ArrowUpDown, Folder, ArrowLeft, ChevronRight } from 'lucide-react';
 import { Modal, ModalContent, ModalFooter, ConfirmDialog, Button, Input } from '../components/common';
-
-// Faculty / Department features
-import { useDepartment } from '../features/department/hooks/useDepartment';
 import { formatDate, parseExpenseReceiptsFromOcr } from '../utils';
 
 const EXPENSE_RECEIPTS_KEY = 'expenseReceipts';
+const EXPENSE_FOLDERS = [
+    'Admin Expense',
+    'Condo Dues',
+    'Internet Expense',
+    'Office Supply',
+    'Rental',
+    'Salary and Wages',
+    'Service Charge',
+    'Taxes and Licenses',
+    'Utilities Expense',
+];
+
+const toFolderSlug = (name) =>
+    name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+const FOLDER_ROUTE_MAP = EXPENSE_FOLDERS.map((name) => ({
+    name,
+    slug: toFolderSlug(name),
+}));
+
+const mapExpenseTypeToFolderSlug = (expenseType = '') => {
+    const t = String(expenseType).toLowerCase();
+    if (t.includes('internet')) return toFolderSlug('Internet Expense');
+    if (t.includes('utility')) return toFolderSlug('Utilities Expense');
+    if (t.includes('salary') || t.includes('wage')) return toFolderSlug('Salary and Wages');
+    if (t.includes('service')) return toFolderSlug('Service Charge');
+    if (t.includes('tax') || t.includes('license')) return toFolderSlug('Taxes and Licenses');
+    if (t.includes('rent') || t.includes('lease') || t.includes('accommodation')) return toFolderSlug('Rental');
+    if (t.includes('condo')) return toFolderSlug('Condo Dues');
+    if (t.includes('office') || t.includes('supply')) return toFolderSlug('Office Supply');
+    return toFolderSlug('Admin Expense');
+};
 const STATIC_EXPENSE_RECEIPTS = [
     {
         rowId: 'seed-rcp-1001',
@@ -32,6 +62,7 @@ const STATIC_EXPENSE_RECEIPTS = [
         name: 'Juan Dela Cruz',
         status: 'Parsed',
         sourceText: 'Lunch receipt',
+        folderSlug: toFolderSlug('Admin Expense'),
     },
     {
         rowId: 'seed-rcp-1002',
@@ -43,6 +74,7 @@ const STATIC_EXPENSE_RECEIPTS = [
         name: 'Maria Santos',
         status: 'Parsed',
         sourceText: 'Flight booking',
+        folderSlug: toFolderSlug('Admin Expense'),
     },
     {
         rowId: 'seed-rcp-1003',
@@ -54,6 +86,7 @@ const STATIC_EXPENSE_RECEIPTS = [
         name: 'Carlo Reyes',
         status: 'Parsed',
         sourceText: 'Printer ink and paper',
+        folderSlug: toFolderSlug('Office Supply'),
     },
     {
         rowId: 'seed-rcp-1004',
@@ -65,6 +98,7 @@ const STATIC_EXPENSE_RECEIPTS = [
         name: 'Ana Gomez',
         status: 'Parsed',
         sourceText: 'Internet subscription',
+        folderSlug: toFolderSlug('Utilities Expense'),
     },
     {
         rowId: 'seed-rcp-1005',
@@ -76,6 +110,7 @@ const STATIC_EXPENSE_RECEIPTS = [
         name: 'Luis Mendoza',
         status: 'Parsed',
         sourceText: 'Hotel stay',
+        folderSlug: toFolderSlug('Rental'),
     },
 ];
 
@@ -276,6 +311,10 @@ function ReceiptImageModal({ row, onClose }) {
 }
 
 export default function Dashboard() {
+    const navigate = useNavigate();
+    const { folderSlug } = useParams();
+    const activeFolder = FOLDER_ROUTE_MAP.find((folder) => folder.slug === folderSlug) || null;
+    const isFolderLanding = !activeFolder;
 
 
     // Upload state
@@ -297,7 +336,7 @@ export default function Dashboard() {
     const editorModal = useModal();
     const resultsModal = useModal();
 
-    const { uploadOcr, loading: uploadLoading, ocrResults } = useTorUpload();
+    const { uploadOcr, loading: uploadLoading, ocrResults } = useExpenseUpload();
 
     // Profile check
     const { profileExists, loading: profileLoading, checkExists, checkComplete } = useProfile(userName, user?.role);
@@ -310,22 +349,13 @@ export default function Dashboard() {
         }
     }, [checkComplete, profileExists, profileLoading, profileModal]);
 
-    // Department Table State
-    const [activeTab, setActiveTab] = useState('requests');
-    const {
-        requests,
-        applications,
-        accepted,
-        loading: tableLoading,
-        fetchAllData,
-    } = useDepartment();
+    const tableLoading = false;
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedRows, setSelectedRows] = useState([]);
     const [expenseReceipts, setExpenseReceipts] = useState([]);
     const [editingReceipt, setEditingReceipt] = useState(null);
     const [showFilters, setShowFilters] = useState(false);
-    const [filterExpenseType, setFilterExpenseType] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
     const [filterDateFrom, setFilterDateFrom] = useState('');
     const [filterDateTo, setFilterDateTo] = useState('');
@@ -347,13 +377,18 @@ export default function Dashboard() {
     const staticGreetingName = 'Juan';
 
     useEffect(() => {
-        fetchAllData();
-    }, [fetchAllData]);
+        setSelectedRows([]);
+    }, [activeFolder?.slug]);
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem(EXPENSE_RECEIPTS_KEY) || '[]');
         if (Array.isArray(stored) && stored.length > 0) {
-            setExpenseReceipts(stored);
+            const migrated = stored.map((row) => ({
+                ...row,
+                folderSlug: row.folderSlug || mapExpenseTypeToFolderSlug(row.expenseType),
+            }));
+            localStorage.setItem(EXPENSE_RECEIPTS_KEY, JSON.stringify(migrated));
+            setExpenseReceipts(migrated);
             return;
         }
         localStorage.setItem(EXPENSE_RECEIPTS_KEY, JSON.stringify(STATIC_EXPENSE_RECEIPTS));
@@ -389,14 +424,19 @@ export default function Dashboard() {
 
             if (result && result.ocr_results && result.school_tor) {
                 const parsedReceipts = parseExpenseReceiptsFromOcr(result, userName, { images: uploadedImages });
+                const targetFolderSlug = activeFolder?.slug;
+                const taggedReceipts = parsedReceipts.map((row) => ({
+                    ...row,
+                    folderSlug: targetFolderSlug || row.folderSlug || mapExpenseTypeToFolderSlug(row.expenseType),
+                }));
                 if (parsedReceipts.length > 0) {
                     setExpenseReceipts((prev) => {
-                        const merged = [...parsedReceipts, ...prev];
+                        const merged = [...taggedReceipts, ...prev];
                         const uniqueRows = [];
                         const seen = new Set();
 
                         merged.forEach((row) => {
-                            const key = `${row.receiptNo}-${row.amountLabel}-${row.date}`;
+                            const key = `${row.folderSlug}-${row.receiptNo}-${row.amountLabel}-${row.date}`;
                             if (seen.has(key)) return;
                             seen.add(key);
                             uniqueRows.push(row);
@@ -422,30 +462,12 @@ export default function Dashboard() {
     const handleCloseResults = () => {
         resultsModal.close();
         setUploadedImages([]);
-        fetchAllData(); // Refresh table after upload
     };
 
-    // Table Functions
-    const filterData = (data, idField) => {
-        if (!debouncedSearch.trim()) return data;
+    const folderScopedReceipts = expenseReceipts.filter((item) => item.folderSlug === activeFolder?.slug);
+    const hasReceiptData = folderScopedReceipts.length > 0;
 
-        return data.filter((item) => {
-            const query = debouncedSearch.toLowerCase();
-
-            return (
-                item.applicant_name?.toLowerCase().includes(query) ||
-                item[idField]?.toString().toLowerCase().includes(query) ||
-                item.status?.toLowerCase().includes(query)
-            );
-        });
-    };
-
-    const filteredRequests = filterData(requests || [], 'accountID');
-    const filteredApplications = filterData(applications || [], 'applicant_id');
-    const filteredAccepted = filterData(accepted || [], 'accountID');
-    const hasReceiptData = expenseReceipts.length > 0;
-
-    const filteredReceiptRows = expenseReceipts.filter((item) => {
+    const filteredReceiptRows = folderScopedReceipts.filter((item) => {
         // text search
         if (debouncedSearch.trim()) {
             const q = debouncedSearch.toLowerCase();
@@ -458,9 +480,6 @@ export default function Dashboard() {
             );
             if (!matchesText) return false;
         }
-
-        // expense type filter
-        if (filterExpenseType && item.expenseType !== filterExpenseType) return false;
 
         // status filter
         if (filterStatus && item.status !== filterStatus) return false;
@@ -496,28 +515,6 @@ export default function Dashboard() {
 
     const ledgerRows = (() => {
         if (hasReceiptData) {
-            if (activeTab === 'applications') {
-                return filteredReceiptRows
-                    .filter((row) => ['Meals', 'Travel', 'Fuel', 'Accommodation'].includes(row.expenseType))
-                    .map((row) => ({
-                        ...row,
-                        idLabel: row.receiptNo,
-                        category: row.expenseType,
-                        route: null,
-                    }));
-            }
-
-            if (activeTab === 'accepted') {
-                return filteredReceiptRows
-                    .filter((row) => ['Office Supplies', 'Utilities', 'Other'].includes(row.expenseType))
-                    .map((row) => ({
-                        ...row,
-                        idLabel: row.receiptNo,
-                        category: row.expenseType,
-                        route: null,
-                    }));
-            }
-
             return filteredReceiptRows.map((row) => ({
                 ...row,
                 idLabel: row.receiptNo,
@@ -525,43 +522,7 @@ export default function Dashboard() {
                 route: null,
             }));
         }
-
-        if (activeTab === 'requests') {
-            return filteredRequests.map((item) => ({
-                rowId: `request-${item.accountID}`,
-                date: item.request_date,
-                idLabel: item.accountID,
-                name: item.applicant_name,
-                category: 'Intake',
-                status: item.status || 'Pending',
-                amountLabel: 'Awaiting OCR',
-                route: `/request/${item.accountID}`,
-            }));
-        }
-
-        if (activeTab === 'applications') {
-            return filteredApplications.map((item) => ({
-                rowId: `application-${item.applicant_id}`,
-                date: item.request_date,
-                idLabel: item.applicant_id,
-                name: item.applicant_name,
-                category: 'OCR',
-                status: item.status || 'In Progress',
-                amountLabel: 'Extracting Fields',
-                route: `/document/${item.applicant_id}`,
-            }));
-        }
-
-        return filteredAccepted.map((item) => ({
-            rowId: `accepted-${item.accountID}`,
-            date: item.accepted_date || item.request_date,
-            idLabel: item.accountID,
-            name: item.applicant_name,
-            category: 'Review',
-            status: item.status || 'Accepted',
-            amountLabel: 'Validated',
-            route: `/finalDocument/${item.accountID}`,
-        }));
+        return [];
     })();
 
     const sortedLedgerRows = (() => {
@@ -626,7 +587,7 @@ export default function Dashboard() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `lifewood-expense-receipts-${activeTab}.json`;
+        link.download = 'lifewood-expense-receipts-all.json';
         link.click();
         URL.revokeObjectURL(url);
     };
@@ -741,6 +702,74 @@ export default function Dashboard() {
         return 'bg-amber-500';
     };
 
+    if (isFolderLanding) {
+        return (
+            <BackgroundLayout>
+                <div className="min-h-screen bg-lifewood-paper/60">
+                    <div className="relative z-10">
+                        <Header userName={userName} onOpenProfile={profileModal.open} />
+
+                        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                            <div className="relative overflow-hidden rounded-2xl bg-lifewood-darkSerpent text-white px-6 py-7 mb-6 shadow-lifewood-lg">
+                                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-lifewood-goldenBrown via-lifewood-saffaron to-lifewood-earthYellow" />
+                                <div className="absolute right-0 top-0 bottom-0 w-48 opacity-5 pointer-events-none"
+                                    style={{ background: 'radial-gradient(circle at 120% 50%, #FFB347 0%, transparent 70%)' }} />
+                                <div className="relative z-10">
+                                    <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-1">
+                                        Good Day, <span className="text-lifewood-saffaron">{staticGreetingName}</span>!
+                                    </h2>
+                                    <p className="text-white/55 text-sm">
+                                        Choose an expense folder to open its OCR workspace.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="p-1 sm:p-2">
+                                <h3 className="text-lg font-bold text-lifewood-darkSerpent mb-4">Expense Folders</h3>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {FOLDER_ROUTE_MAP.map((folder) => (
+                                        <button
+                                            key={folder.slug}
+                                            onClick={() => navigate(`/Dashboard/${folder.slug}`)}
+                                            className="group relative aspect-square overflow-hidden rounded-2xl border border-lifewood-castletonGreen/25 bg-gradient-to-br from-white via-lifewood-paper to-lifewood-seaSalt shadow-[0_12px_24px_rgba(22,37,24,0.16)] hover:shadow-[0_18px_36px_rgba(22,37,24,0.24)] hover:-translate-y-1 transition-all duration-300 text-left p-4"
+                                        >
+                                            <div className="pointer-events-none absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-lifewood-goldenBrown via-lifewood-saffaron to-lifewood-earthYellow opacity-80" />
+                                            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.9),rgba(255,255,255,0)_45%)]" />
+                                            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(130deg,rgba(255,255,255,0.35),rgba(255,255,255,0)_42%,rgba(22,101,52,0.12)_100%)]" />
+
+                                            <div className="relative h-full flex flex-col">
+                                                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-lifewood-saffaron/45 to-lifewood-goldenBrown/25 text-lifewood-goldenBrown flex items-center justify-center border border-lifewood-saffaron/45 shadow-sm">
+                                                    <Folder className="w-6 h-6" />
+                                                </div>
+                                                <div className="mt-4 flex-1">
+                                                    <p className="text-sm sm:text-base font-extrabold leading-snug text-lifewood-darkSerpent line-clamp-3">
+                                                        {folder.name}
+                                                    </p>
+                                                </div>
+                                                <div className="pt-3 flex items-center gap-1 text-xs font-semibold text-lifewood-charcoal/70 group-hover:text-lifewood-darkSerpent">
+                                                    Open Folder
+                                                    <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                                                </div>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </div>
+
+                <ProfilePanel
+                    userId={userName}
+                    userRole={user?.role}
+                    isOpen={profileModal.isOpen}
+                    onClose={profileModal.close}
+                    onSaveSuccess={checkExists}
+                />
+            </BackgroundLayout>
+        );
+    }
+
     return (
         <BackgroundLayout>
             {/* Page shell */}
@@ -769,17 +798,29 @@ export default function Dashboard() {
                         </div>
 
                         {/* ── OCR Workspace card ───────────────────────────────────── */}
-                        <div className="bg-white rounded-2xl shadow-lifewood border border-lifewood-platinum/50 overflow-hidden mb-8">
+                        <div className="bg-white rounded-2xl shadow-lifewood border border-lifewood-platinum/50 mb-4">
 
                             {/* Card header */}
                             <div className="px-5 sm:px-6 py-5 border-b border-lifewood-platinum/60 bg-lifewood-paper/40">
+                                <div className="mb-4">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-lifewood-castletonGreen/10 text-lifewood-castletonGreen border border-lifewood-castletonGreen/20">
+                                        Functions
+                                    </span>
+                                </div>
 
                                 {/* ── Row 1: Title  |  Upload + Export ── */}
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
                                     <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => navigate('/Dashboard')}
+                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-lifewood-platinum text-lifewood-charcoal hover:text-lifewood-darkSerpent hover:bg-lifewood-paper transition-colors"
+                                            title="Back to folders"
+                                        >
+                                            <ArrowLeft className="w-4 h-4" />
+                                        </button>
                                         <div className="w-2 h-7 rounded-full bg-gradient-to-b from-lifewood-saffaron to-lifewood-goldenBrown" />
                                         <h3 className="text-lg font-bold text-lifewood-darkSerpent">
-                                            Expense OCR Workspace
+                                            {activeFolder?.name} - Expense OCR Workspace
                                         </h3>
                                         {selectedInView.length > 0 && (
                                             <span className="text-xs font-bold px-2.5 py-1 rounded-full
@@ -819,7 +860,7 @@ export default function Dashboard() {
                                     </div>
                                 </div>
 
-                                {/* ── Row 2: Search  |  Status  |  Category — always visible ── */}
+                                {/* ── Row 2: Search  |  Status — always visible ── */}
                                 <div className="flex flex-col sm:flex-row gap-3 items-end">
                                     {/* Search */}
                                     <div className="relative flex-1 min-w-0">
@@ -851,31 +892,12 @@ export default function Dashboard() {
                                                        bg-no-repeat bg-[right_0.75rem_center]"
                                         >
                                             <option value="">All Statuses</option>
-                                            {Array.from(new Set(expenseReceipts.map(r => r.status).filter(Boolean))).map((s) => (
+                                            {Array.from(new Set(folderScopedReceipts.map(r => r.status).filter(Boolean))).map((s) => (
                                                 <option key={s} value={s}>{s}</option>
                                             ))}
                                         </select>
                                     </div>
 
-                                    {/* Category dropdown */}
-                                    <div className="flex flex-col shrink-0 w-full sm:w-[160px]">
-                                        <label className="text-[10px] font-semibold text-lifewood-charcoal/60 uppercase tracking-wider mb-1 ml-1">Category</label>
-                                        <select
-                                            value={filterExpenseType}
-                                            onChange={(e) => setFilterExpenseType(e.target.value)}
-                                            className="h-[42px] px-3 pr-8 rounded-xl border border-lifewood-platinum bg-white text-sm
-                                                       text-lifewood-darkSerpent cursor-pointer
-                                                       focus:outline-none focus:ring-2 focus:ring-lifewood-castletonGreen/20
-                                                       focus:border-lifewood-castletonGreen transition-all appearance-none
-                                                       bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23999%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%2F%3E%3C%2Fsvg%3E')]
-                                                       bg-no-repeat bg-[right_0.75rem_center]"
-                                        >
-                                            <option value="">All</option>
-                                            {Array.from(new Set(expenseReceipts.map(r => r.expenseType).filter(Boolean))).map((t) => (
-                                                <option key={t} value={t}>{t}</option>
-                                            ))}
-                                        </select>
-                                    </div>
                                 </div>
 
                                 {/* ── Row 3 (collapsible): Advanced filters ── */}
@@ -945,7 +967,6 @@ export default function Dashboard() {
 
                                             <button
                                                 onClick={() => {
-                                                    setFilterExpenseType('');
                                                     setFilterStatus('');
                                                     setFilterDateFrom('');
                                                     setFilterDateTo('');
@@ -965,31 +986,16 @@ export default function Dashboard() {
                                     )}
                                 </div>
 
-                                {/* ── Row 4: Results count + Tabs ── */}
-                                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                    <div className="inline-flex rounded-xl bg-lifewood-paper p-1 border border-lifewood-platinum/60 w-full sm:w-auto">
-                                        {[
-                                            { key: 'requests',    label: 'All Types',       count: hasReceiptData ? filteredReceiptRows.length : filteredRequests.length },
-                                            { key: 'applications',label: 'Travel & Meals',  count: hasReceiptData ? filteredReceiptRows.filter(r => ['Meals','Travel','Fuel','Accommodation'].includes(r.expenseType)).length : filteredApplications.length },
-                                            { key: 'accepted',    label: 'Office & Other',  count: hasReceiptData ? filteredReceiptRows.filter(r => ['Office Supplies','Utilities','Other'].includes(r.expenseType)).length : filteredAccepted.length },
-                                        ].map(tab => (
-                                            <button
-                                                key={tab.key}
-                                                onClick={() => setActiveTab(tab.key)}
-                                                className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 ${
-                                                    activeTab === tab.key
-                                                        ? 'bg-lifewood-castletonGreen text-white shadow-sm'
-                                                        : 'text-lifewood-charcoal hover:text-lifewood-darkSerpent'
-                                                }`}
-                                            >
-                                                {tab.label}
-                                                <span className={`text-[10px] px-1.5 py-px rounded-full font-bold ${
-                                                    activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-lifewood-platinum text-lifewood-charcoal'
-                                                }`}>{tab.count}</span>
-                                            </button>
-                                        ))}
-                                    </div>
+                                {/* ── Row 4: Results count ── */}
+                            </div>
+                        </div>
 
+                        <div className="bg-white rounded-2xl shadow-lifewood border border-lifewood-platinum/50 overflow-hidden mb-8">
+                            <div className="px-5 sm:px-6 py-4 border-b border-lifewood-platinum/60 bg-lifewood-paper/30">
+                                <div className="flex items-center justify-between">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-lifewood-saffaron/15 text-lifewood-goldenBrown border border-lifewood-saffaron/30">
+                                        Contents
+                                    </span>
                                     <p className="text-xs text-lifewood-charcoal/60 font-medium">
                                         {sortedLedgerRows.length} {sortedLedgerRows.length === 1 ? 'receipt' : 'receipts'} found
                                     </p>
@@ -1344,3 +1350,4 @@ export default function Dashboard() {
         </BackgroundLayout>
     );
 }
+
