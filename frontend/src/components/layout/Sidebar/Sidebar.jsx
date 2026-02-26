@@ -1,15 +1,14 @@
 import React from 'react';
-import { Home, UserCircle, LogOut, Info, ChevronRight } from 'lucide-react';
+import { Home, LogOut, Info, ChevronRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../features/auth';
 
 const NAV_ITEMS = [
-  { type: 'link',   to: '/Dashboard',  icon: Home,       label: 'Dashboard'  },
-  { type: 'button', id: 'profile',     icon: UserCircle, label: 'My Profile' },
-  { type: 'link',   to: '/AboutUsPage',icon: Info,        label: 'About Us'   },
+  { type: 'link', to: '/Dashboard',  icon: Home, label: 'Dashboard' },
+  { type: 'link', to: '/AboutUsPage', icon: Info, label: 'About Us'  },
 ];
 
-export default function Sidebar({ sidebarOpen, onOpenProfile }) {
+export default function Sidebar({ sidebarOpen }) {
     const { logout, loading } = useAuth();
     const { pathname } = useLocation();
 
@@ -70,21 +69,6 @@ export default function Sidebar({ sidebarOpen, onOpenProfile }) {
                             );
                         }
 
-                        if (item.id === 'profile') {
-                            return (
-                                <button
-                                    key="profile"
-                                    onClick={onOpenProfile}
-                                    className="group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl
-                                               text-sm font-semibold text-white/60
-                                               hover:text-white hover:bg-white/8 transition-all duration-200 text-left"
-                                >
-                                    <span className="w-1 h-5 rounded-full bg-transparent group-hover:bg-white/20 transition-all" />
-                                    <item.icon className="w-4 h-4 shrink-0" />
-                                    {item.label}
-                                </button>
-                            );
-                        }
                         return null;
                     })}
                 </nav>

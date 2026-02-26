@@ -1,44 +1,76 @@
 import React, { useState } from 'react';
 import LoginForm from '../features/auth/components/LoginForm';
 import RegisterForm from '../features/auth/components/RegisterForm';
-import { Shield, FileText, Zap, CheckCircle, ArrowRight } from 'lucide-react';
+import { Shield, FileText, Zap, CheckCircle, ArrowRight, Users, Clock, Cpu } from 'lucide-react';
 
-/* ─── Decorative SVG ring pattern ─────────────────────────────────────────── */
-function RingPattern() {
+/* ─── Mesh grid background ─────────────────────────────────────────────────── */
+function MeshGrid() {
   return (
     <svg
-      className="absolute bottom-0 right-0 w-72 h-72 opacity-10 pointer-events-none"
-      viewBox="0 0 288 288"
+      className="absolute inset-0 w-full h-full opacity-[0.07] pointer-events-none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <pattern id="mesh" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFB347" strokeWidth="0.5" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#mesh)" />
+    </svg>
+  );
+}
+
+/* ─── Radial glow blobs ─────────────────────────────────────────────────────── */
+function GlowBlobs() {
+  return (
+    <>
+      {/* bottom-right warm glow */}
+      <div
+        className="absolute bottom-[-80px] right-[-80px] w-80 h-80 rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(255,179,71,0.12) 0%, transparent 70%)',
+        }}
+      />
+      {/* top-left cool glow */}
+      <div
+        className="absolute top-[-60px] left-[-60px] w-64 h-64 rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(3,78,52,0.5) 0%, transparent 70%)',
+        }}
+      />
+    </>
+  );
+}
+
+/* ─── Decorative ring arc (bottom-right) ───────────────────────────────────── */
+function RingArc() {
+  return (
+    <svg
+      className="absolute bottom-0 right-0 w-64 h-64 opacity-[0.13] pointer-events-none"
+      viewBox="0 0 256 256"
       fill="none"
     >
-      {[144, 108, 72, 36].map((r, i) => (
-        <circle
-          key={i}
-          cx="288"
-          cy="288"
-          r={r}
-          stroke="#FFB347"
-          strokeWidth="1.5"
-        />
+      {[120, 90, 60, 30].map((r, i) => (
+        <circle key={i} cx="256" cy="256" r={r} stroke="#FFB347" strokeWidth="1.2" />
       ))}
     </svg>
   );
 }
 
-/* ─── Decorative leaf/dot grid (top-left) ─────────────────────────────────── */
-function DotGrid() {
+/* ─── Dot cluster (top-right) ──────────────────────────────────────────────── */
+function DotCluster() {
   return (
     <svg
-      className="absolute top-8 left-8 w-24 h-24 opacity-10 pointer-events-none"
-      viewBox="0 0 96 96"
+      className="absolute top-6 right-6 w-28 h-28 opacity-[0.12] pointer-events-none"
+      viewBox="0 0 112 112"
     >
-      {Array.from({ length: 5 }).flatMap((_, row) =>
-        Array.from({ length: 5 }).map((__, col) => (
+      {Array.from({ length: 6 }).flatMap((_, row) =>
+        Array.from({ length: 6 }).map((__, col) => (
           <circle
             key={`${row}-${col}`}
-            cx={col * 20 + 8}
-            cy={row * 20 + 8}
-            r="2.5"
+            cx={col * 20 + 6}
+            cy={row * 20 + 6}
+            r="2"
             fill="#FFB347"
           />
         ))
@@ -47,16 +79,30 @@ function DotGrid() {
   );
 }
 
-/* ─── Feature bullet ──────────────────────────────────────────────────────── */
-function Feature({ icon: Icon, title, desc }) {
+/* ─── Stat badge ────────────────────────────────────────────────────────────── */
+function StatBadge({ icon: Icon, value, label }) {
   return (
-    <div className="flex items-start gap-3">
-      <div className="shrink-0 w-9 h-9 rounded-lg bg-lifewood-saffaron/15 flex items-center justify-center mt-0.5">
+    <div className="flex flex-col items-center gap-1 px-4 py-3 rounded-2xl bg-white/[0.06] border border-white/10 backdrop-blur-sm">
+      <Icon className="w-4 h-4 text-lifewood-saffaron mb-0.5" />
+      <span className="text-base font-extrabold text-white leading-none">{value}</span>
+      <span className="text-[10px] text-white/45 uppercase tracking-wide font-medium">{label}</span>
+    </div>
+  );
+}
+
+/* ─── Feature card ──────────────────────────────────────────────────────────── */
+function Feature({ icon: Icon, title, desc, accent }) {
+  return (
+    <div className="group flex items-start gap-3.5 p-3.5 rounded-2xl bg-white/[0.05] border border-white/[0.08] hover:bg-white/[0.09] hover:border-lifewood-saffaron/20 transition-all duration-300">
+      <div
+        className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center mt-0.5"
+        style={{ background: accent || 'rgba(255,179,71,0.15)' }}
+      >
         <Icon className="w-4 h-4 text-lifewood-saffaron" />
       </div>
-      <div>
-        <p className="text-sm font-semibold text-white">{title}</p>
-        <p className="text-xs text-white/55 mt-0.5 leading-relaxed">{desc}</p>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-white/90 group-hover:text-white transition-colors">{title}</p>
+        <p className="text-[12px] text-white/45 mt-0.5 leading-relaxed">{desc}</p>
       </div>
     </div>
   );
@@ -75,65 +121,95 @@ export default function LandingPage() {
       {/* ── LEFT PANEL (branding) ────────────────────────────────────────── */}
       <div
         className="relative flex flex-col justify-between overflow-hidden
-                   lg:w-[44%] xl:w-[42%] flex-shrink-0
-                   min-h-[260px] lg:min-h-screen
+                   lg:w-[46%] xl:w-[44%] flex-shrink-0
+                   min-h-[320px] lg:min-h-screen
                    px-8 py-10 lg:px-12 lg:py-14"
-        style={{ background: 'linear-gradient(160deg, #133020 0%, #034E34 55%, #133020 100%)' }}
+        style={{ background: 'linear-gradient(155deg, #0d2318 0%, #034E34 45%, #0a2b1c 100%)' }}
       >
-        {/* decorative elements */}
-        <DotGrid />
-        <RingPattern />
-        {/* thin gold top bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-lifewood-saffaron via-lifewood-earthYellow to-lifewood-goldenBrown" />
+        {/* Layered decorative elements */}
+        <MeshGrid />
+        <GlowBlobs />
+        <RingArc />
+        <DotCluster />
 
-        {/* Logo + brand */}
+        {/* Gold top bar */}
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-lifewood-saffaron to-transparent opacity-80" />
+
+        {/* ── Top: Logo + Headline ─────────────────────────────────────── */}
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-10 lg:mb-14">
-            <img
-              src="/lifewood-logo.png"
-              alt="Lifewood"
-              className="h-10 w-auto drop-shadow-lg"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-            <span className="text-white font-bold text-xl tracking-tight">Lifewood AI</span>
+
+          {/* Logo row */}
+          <div className="flex items-center gap-3 mb-8">
+            <div className="relative">
+              <img
+                src="/white logo.png"
+                alt="Lifewood"
+                className="h-10 w-auto drop-shadow-lg"
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+              {/* online indicator */}
+              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#034E34] shadow" />
+            </div>
+           
           </div>
 
-          <h1 className="text-3xl lg:text-4xl font-extrabold text-white leading-tight mb-4">
-            Employee<br />
-            <span className="text-lifewood-saffaron">Document</span><br />
-            Portal
-          </h1>
-          <p className="text-white/60 text-sm leading-relaxed max-w-xs mb-10">
-            AI-powered receipt scanning and document management for Lifewood employees.
-          </p>
+          {/* Headline */}
+          <div className="mb-6 flex flex-col items-center text-center">
+            <h1 className="text-3xl lg:text-[2.5rem] font-extrabold text-white leading-[1.15] tracking-tight mx-auto">
+              Employee<br />
+              <span
+                className="text-transparent bg-clip-text"
+                style={{ backgroundImage: 'linear-gradient(90deg, #FFB347 0%, #FFCF77 60%, #E09020 100%)' }}
+              >
+                Document
+              </span>
+              <br />Portal
+            </h1>
+            <p className="mt-3 text-white/50 text-[13px] leading-relaxed max-w-[520px] text-justify mx-auto">
+              AI-powered receipt scanning and document management for Lifewood employees.
+            </p>
+          </div>
 
-          {/* Feature bullets */}
-          <div className="space-y-5">
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-2 mb-8">
+            <StatBadge icon={Users}  value="500+"  label="Employees" />
+            <StatBadge icon={Cpu}    value="AI"     label="OCR Engine" />
+            <StatBadge icon={Clock}  value="24/7"   label="Available" />
+          </div>
+
+          {/* Feature cards */}
+          <div className="space-y-2.5">
             <Feature
               icon={Zap}
               title="Instant OCR Extraction"
               desc="Upload receipts and let the AI extract all expense details automatically."
+              accent="rgba(255,179,71,0.18)"
             />
             <Feature
               icon={FileText}
               title="Centralized Records"
               desc="All expense documents organized and searchable in one place."
+              accent="rgba(3,120,80,0.22)"
             />
             <Feature
               icon={Shield}
               title="Secure & Authorized"
               desc="Role-based access ensures data is visible only to authorized personnel."
+              accent="rgba(255,179,71,0.14)"
             />
           </div>
         </div>
 
-        {/* Footer note */}
+        {/* ── Bottom: Footer note ──────────────────────────────────────── */}
         <div className="relative z-10 mt-10 lg:mt-0">
-          <div className="flex items-center gap-2 text-white/35 text-xs">
-            <CheckCircle className="w-3.5 h-3.5 text-lifewood-saffaron/60" />
-            Internal use only &mdash; Lifewood AI &copy; {new Date().getFullYear()}
+          {/* divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-white/30 text-[11px]">
+              <CheckCircle className="w-3.5 h-3.5 text-lifewood-saffaron/50 shrink-0" />
+              Internal use only &mdash; Lifewood AI
+            </div>
+            <span className="text-[11px] text-white/20">&copy; {new Date().getFullYear()}</span>
           </div>
         </div>
       </div>

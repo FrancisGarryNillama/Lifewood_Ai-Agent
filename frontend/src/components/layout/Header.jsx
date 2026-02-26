@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Menu, User, Bell, UserCheck, UserX, X, Building2, Mail, Phone, MapPin, Calendar, ChevronRight } from 'lucide-react';
+import { LogOut, User, Bell, UserCheck, UserX, X, Building2, Mail, Phone, MapPin, Calendar, ChevronRight } from 'lucide-react';
 import { useAuthContext, USER_ROLES } from '../../context';
+import { useAuth } from '../../features/auth';
 
 const STATIC_PENDING_REQUESTS = [
   {
@@ -266,8 +267,9 @@ function NotificationBell() {
 }
 
 // ─── Main Header ─────────────────────────────────────────────────────────────
-export default function Header({ toggleSidebar, userName }) {
+export default function Header({ userName, onOpenProfile }) {
   const { user } = useAuthContext();
+  const { logout, loading: logoutLoading } = useAuth();
   const isAdmin = user?.role === USER_ROLES.ADMIN;
 
   return (
@@ -277,29 +279,15 @@ export default function Header({ toggleSidebar, userName }) {
 
       <div className="h-[53px] px-4 sm:px-6 flex items-center justify-between">
 
-        {/* Left: Hamburger + Logo */}
+        {/* Left: Logo */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <button
-            onClick={toggleSidebar}
-            aria-label="Toggle sidebar"
-            className="group p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10
-                       transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lifewood-saffaron/50"
-          >
-            <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-
-          {/* Logo */}
           <div className="flex items-center gap-2.5">
             <img
-              src="/lifewood-logo.png"
+              src="/white logo.png"
               alt="Lifewood"
-              className="h-7 sm:h-8 w-auto object-contain brightness-0 invert"
+              className="h-9 sm:h-9 w-auto object-contain"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
-            <div className="hidden sm:flex flex-col">
-              <span className="text-white font-bold text-sm leading-tight tracking-wide">LIFEWOOD AI</span>
-              <span className="text-white/40 text-[10px] leading-tight tracking-widest uppercase">Document Portal</span>
-            </div>
           </div>
         </div>
 
@@ -312,8 +300,11 @@ export default function Header({ toggleSidebar, userName }) {
           {/* Divider */}
           <div className="hidden sm:block w-px h-6 bg-white/15" />
 
-          {/* User avatar + info */}
-          <div className="flex items-center gap-2.5">
+          {/* User avatar + info — clickable to open profile */}
+          <button
+            onClick={onOpenProfile}
+            className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-white/10 transition-colors group"
+          >
             {/* Avatar circle */}
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br from-lifewood-saffaron to-lifewood-goldenBrown
                             flex items-center justify-center shadow-gold shrink-0">
@@ -322,7 +313,7 @@ export default function Header({ toggleSidebar, userName }) {
 
             {/* Username + role */}
             <div className="hidden sm:flex flex-col items-start">
-              <span className="text-white text-sm font-semibold leading-tight truncate max-w-[140px]">
+              <span className="text-white text-sm font-semibold leading-tight truncate max-w-[140px] group-hover:text-lifewood-saffaron transition-colors">
                 {userName || 'Guest'}
               </span>
               {user?.role && (
@@ -335,7 +326,22 @@ export default function Header({ toggleSidebar, userName }) {
                 </span>
               )}
             </div>
-          </div>
+          </button>
+
+          {/* Divider */}
+          <div className="hidden sm:block w-px h-6 bg-white/15" />
+
+          {/* Sign Out */}
+          <button
+            onClick={() => logout()}
+            disabled={logoutLoading}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white/60 hover:text-red-400
+                       hover:bg-red-500/10 text-sm font-semibold transition-all disabled:opacity-50"
+            title="Sign Out"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Sign Out</span>
+          </button>
         </div>
       </div>
     </header>

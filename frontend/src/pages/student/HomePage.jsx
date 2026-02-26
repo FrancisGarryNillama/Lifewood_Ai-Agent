@@ -135,7 +135,7 @@ export default function HomePage() {
 
         {/* Content */}
         <div className="relative z-10">
-          <Header toggleSidebar={toggleSidebar} userName={userName} />
+          <Header toggleSidebar={toggleSidebar} userName={userName} onOpenProfile={profileModal.open} />
           <SidebarStudent
             sidebarOpen={sidebarOpen}
             onOpenProfile={profileModal.open}

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Home, UserCircle, LogOut, Info } from 'lucide-react';
+import { Home, LogOut, Info } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../features/auth';
 
-export default function SidebarStudent({ sidebarOpen, onOpenProfile }) {
+export default function SidebarStudent({ sidebarOpen }) {
   const { logout, loading } = useAuth();
   const { pathname } = useLocation();
 
@@ -50,15 +50,6 @@ export default function SidebarStudent({ sidebarOpen, onOpenProfile }) {
               </Link>
             );
           })}
-          <button
-            onClick={onOpenProfile}
-            className="group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold
-                       text-white/60 hover:text-white hover:bg-white/8 transition-all duration-200 text-left"
-          >
-            <span className="w-1 h-5 rounded-full bg-transparent group-hover:bg-white/20 transition-all" />
-            <UserCircle className="w-4 h-4 shrink-0" />
-            My Profile
-          </button>
         </nav>
         <div className="px-3 py-4 border-t border-white/8">
           <button
