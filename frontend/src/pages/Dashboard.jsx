@@ -25,7 +25,7 @@ const EXPENSE_FOLDERS = [
     'Communication',
     'Transportation & Travel',
     'Meals & Entertainment',
-    'Repirs & Maintenance',
+    'Repairs & Maintenance',
     'Professional Fees',
     'Rent',
     'Advertising & Promotion',
