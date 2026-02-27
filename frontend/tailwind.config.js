@@ -49,11 +49,13 @@ module.exports = {
         'fade-in':      'fadeIn 0.4s ease-out both',
         'slide-left':   'slideLeft 0.5s cubic-bezier(0.32,0.72,0,1) both',
         'pulse-slow':   'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+        'float':        'float 4s ease-in-out infinite',
       },
       keyframes: {
         fadeUp:    { from: { opacity: 0, transform: 'translateY(16px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
         fadeIn:    { from: { opacity: 0 }, to: { opacity: 1 } },
         slideLeft: { from: { opacity: 0, transform: 'translateX(32px)' }, to: { opacity: 1, transform: 'translateX(0)' } },
+        float:     { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-6px)' } },
       },
     },
   },

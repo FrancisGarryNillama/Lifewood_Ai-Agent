@@ -1225,16 +1225,21 @@ export default function Dashboard() {
                 {/* ── Upload Modal ─────────────────────────────────────────────── */}
                 {showUploadModal && (
                     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="relative bg-white rounded-2xl shadow-lifewood-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-thin
+                        <div className="relative bg-white rounded-2xl shadow-lifewood-lg max-w-4xl w-full max-h-[90vh] flex flex-col
                                         border border-lifewood-platinum/50">
-                            <button
-                                onClick={() => setShowUploadModal(false)}
-                                className="absolute right-3 top-3 z-10 text-lifewood-charcoal/60 hover:text-lifewood-darkSerpent hover:bg-lifewood-paper rounded-lg p-1.5 transition-colors"
-                                title="Close"
-                            >
-                                <span className="w-5 h-5 flex justify-center items-center font-bold text-lg leading-none">x</span>
-                            </button>
-                            <div className="p-6">
+                            {/* Sticky close bar */}
+                            <div className="sticky top-0 z-10 flex items-center justify-end px-4 py-3 bg-white rounded-t-2xl border-b border-lifewood-platinum/40">
+                                <button
+                                    onClick={() => setShowUploadModal(false)}
+                                    aria-label="Close upload modal"
+                                    className="flex items-center justify-center w-8 h-8 rounded-full bg-lifewood-paper hover:bg-lifewood-platinum/40 text-lifewood-darkSerpent border border-lifewood-platinum/60 shadow-sm transition-colors duration-150"
+                                    title="Close"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                            {/* Scrollable body */}
+                            <div className="overflow-y-auto scrollbar-thin p-6">
                                 <MultiImageUploader onContinue={handleContinueUpload} />
                             </div>
                         </div>
