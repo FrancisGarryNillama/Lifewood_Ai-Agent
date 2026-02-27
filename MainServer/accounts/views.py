@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Buyer
+from .serializers import BuyerSerializer
 
-# Create your views here.
+class BuyerViewSet(viewsets.ModelViewSet):
+    queryset = Buyer.objects.all()
+    serializer_class = BuyerSerializer

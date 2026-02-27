@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'billing.apps.BillingConfig',
     'printing.apps.PrintingConfig',
+    'ocr.apps.OcrConfig',
     'AdminServer.apps.AdminserverConfig',
 ]
 
