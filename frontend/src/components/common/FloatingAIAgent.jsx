@@ -112,7 +112,8 @@ export default function FloatingAIAgent() {
 
     movedWhileDraggingRef.current = false;
     setDragTarget(target);
-    event.preventDefault();
+    // Avoid passive event warning on some mobile browsers
+    if (event.cancelable) event.preventDefault();
   };
 
   const handlePanelDragStart = (event) => startDrag(event, 'open');
