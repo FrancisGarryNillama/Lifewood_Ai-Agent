@@ -1,36 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import LoginForm from '../features/auth/components/LoginForm';
 import RegisterForm from '../features/auth/components/RegisterForm';
 import {
   Shield, ArrowRight, Receipt, TrendingUp,
-  PieChart, CheckCircle2, Clock, DollarSign
+  CheckCircle2, Clock
 } from 'lucide-react';
-
-/* ─── Floating stat card (right panel) ────────────────────────────────────── */
-function FloatingCard({ icon: Icon, label, value, accent, className = '', delay = 0 }) {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), delay);
-    return () => clearTimeout(t);
-  }, [delay]);
-
-  return (
-    <div
-      className={`absolute bg-white rounded-2xl shadow-lifewood px-5 py-4 flex items-center gap-3
-                  select-none pointer-events-none transition-all duration-700
-                  ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
-                  ${className}`}
-    >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent}`}>
-        <Icon className="w-5 h-5" />
-      </div>
-      <div>
-        <p className="text-[11px] text-lifewood-asphalt tracking-wide uppercase font-medium">{label}</p>
-        <p className="text-[15px] font-bold text-lifewood-darkSerpent">{value}</p>
-      </div>
-    </div>
-  );
-}
 
 /* ─── Landing Page ────────────────────────────────────────────────────────── */
 export default function LandingPage() {
