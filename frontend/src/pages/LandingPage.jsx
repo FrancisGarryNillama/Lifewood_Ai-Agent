@@ -1,38 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import LoginForm from '../features/auth/components/LoginForm';
 import RegisterForm from '../features/auth/components/RegisterForm';
 import {
-  Shield, ArrowRight, Receipt, TrendingUp,
-  PieChart, CheckCircle2, Clock, DollarSign
+  Shield, ArrowRight, Receipt,
+  TrendingUp, CheckCircle2, Clock
 } from 'lucide-react';
 
-/* ─── Floating stat card (right panel) ────────────────────────────────────── */
-function FloatingCard({ icon: Icon, label, value, accent, className = '', delay = 0 }) {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), delay);
-    return () => clearTimeout(t);
-  }, [delay]);
-
-  return (
-    <div
-      className={`absolute bg-white rounded-2xl shadow-lifewood px-5 py-4 flex items-center gap-3
-                  select-none pointer-events-none transition-all duration-700
-                  ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
-                  ${className}`}
-    >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent}`}>
-        <Icon className="w-5 h-5" />
-      </div>
-      <div>
-        <p className="text-[11px] text-lifewood-asphalt tracking-wide uppercase font-medium">{label}</p>
-        <p className="text-[15px] font-bold text-lifewood-darkSerpent">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Landing Page ────────────────────────────────────────────────────────── */
+/* --- Landing Page ---------------------------------------------------------- */
 export default function LandingPage() {
   const [activeForm, setActiveForm] = useState('login');
   const switchToLogin = () => setActiveForm('login');
@@ -40,13 +14,13 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row overflow-hidden font-sans bg-white">
 
-      {/* ══ LEFT PANEL — Form ═══════════════════════════════════════════ */}
+      {/* == LEFT PANEL - Form == */}
       <div
         className="relative flex flex-col justify-between
                    lg:w-[50%] flex-shrink-0 min-h-screen
                    bg-white px-8 py-8 sm:px-14 lg:px-20 xl:px-28"
       >
-        {/* Top — Logo (pinned left) */}
+        {/* Logo pinned top-left */}
         <div className="absolute top-6 left-6 sm:top-8 sm:left-8 animate-fade-up">
           <img
             src="/lifewood-logo.png"
@@ -55,14 +29,11 @@ export default function LandingPage() {
             draggable={false}
           />
         </div>
-git checkout --ours -- frontend/src/pages/LandingPage.jsx
-git add frontend/src/pages/LandingPage.jsx
-git commit -m "Resolve merge: keep current LandingPage edits"
-        {/* Center — Form area */}
+
+        {/* Center - Form area */}
         <div className="flex-1 flex items-center">
           <div className="w-full max-w-[600px] mx-auto animate-fade-up" style={{ animationDelay: '80ms' }}>
 
-            {/* Heading */}
             <h1 className="text-4xl sm:text-5xl font-bold text-lifewood-darkSerpent tracking-tight leading-[1.1] mb-3">
               {activeForm === 'login' ? 'Welcome Back' : 'Request Access'}
             </h1>
@@ -135,7 +106,7 @@ git commit -m "Resolve merge: keep current LandingPage edits"
           </div>
         </div>
 
-        {/* Bottom — Footer */}
+        {/* Footer */}
         <div className="flex items-center justify-between text-[11px] text-lifewood-asphalt/50 tracking-wide">
           <div className="flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5" />
@@ -145,10 +116,9 @@ git commit -m "Resolve merge: keep current LandingPage edits"
         </div>
       </div>
 
-      {/* ══ RIGHT PANEL — Visual hero ═══════════════════════════════════ */}
+      {/* == RIGHT PANEL - Visual hero == */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden bg-lifewood-darkSerpent">
 
-        {/* Background image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -157,7 +127,6 @@ git commit -m "Resolve merge: keep current LandingPage edits"
           }}
         />
 
-        {/* Content overlay */}
         <div className="relative z-10 flex flex-col justify-between w-full h-full p-10 xl:p-14">
 
           {/* Top badge */}
@@ -165,31 +134,23 @@ git commit -m "Resolve merge: keep current LandingPage edits"
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10
                             rounded-full px-4 py-2 text-white/90 text-[12px] font-medium tracking-wide">
               <Receipt className="w-4 h-4 text-lifewood-saffaron" />
-              SMART EXPENSE MANAGEMENT, SIMPLIFIED.
+              ExpenseAI Intelligence Assistant
             </div>
           </div>
 
-<<<<<<< HEAD
-          {/* Center hero text */}
+          {/* Hero text */}
           <div className="max-w-lg animate-fade-up" style={{ animationDelay: '150ms' }}>
             <h2 className="text-white text-4xl xl:text-5xl font-bold leading-tight tracking-tight mb-4">
               ExpenseAI <br />Intelligence<br />
-              <span className="text-lifewood-saffaron">Assitant</span>
-=======
-          {/* Welcome heading */}
-          <div className="relative z-20 mb-8">
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-lifewood-darkSerpent">
-              {activeForm === 'login' ? 'Welcome' : 'Request Access'}
->>>>>>> c77685334b08627b09f45bebbf6ebaea0a209976
+              <span className="text-lifewood-saffaron">Assistant</span>
             </h2>
-            <p className="text-white/90 text-[15px] leading-relaxed max-w-md">
+            <p className="text-white/60 text-[15px] leading-relaxed max-w-md">
               AI-powered receipt scanning, automated categorization, and real-time
-              tracking — all in one clean workspace.
+              tracking all in one clean workspace.
             </p>
           </div>
 
-<<<<<<< HEAD
-          {/* Bottom features row */}
+          {/* Feature badges */}
           <div className="flex flex-wrap gap-4 animate-fade-up" style={{ animationDelay: '300ms' }}>
             {[
               { icon: CheckCircle2, text: 'Auto Categorize' },
@@ -206,38 +167,9 @@ git commit -m "Resolve merge: keep current LandingPage edits"
                 {text}
               </div>
             ))}
-=======
-          {/* Tab switcher */}
-          <div className="relative z-20 inline-flex rounded-xl bg-lifewood-paper p-1 mb-8 border border-lifewood-platinum w-full">
-            <button
-              onClick={() => setActiveForm('login')}
-              className={`flex-1 py-3 text-base font-semibold rounded-lg transition-all duration-200 active:scale-[0.97] ${
-                activeForm === 'login'
-                    ? 'bg-lifewood-castletonGreen text-white shadow-sm'
-                    : 'text-lifewood-darkSerpent hover:text-lifewood-darkSerpent hover:bg-white/80'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => setActiveForm('register')}
-              className={`flex-1 py-3 text-base font-semibold rounded-lg transition-all duration-200 active:scale-[0.97] ${
-                  activeForm === 'register'
-                    ? 'bg-lifewood-castletonGreen text-white shadow-sm'
-                    : 'text-lifewood-darkSerpent hover:text-lifewood-darkSerpent hover:bg-white/80'
-              }`}
-            >
-              Request Account
-            </button>
->>>>>>> c77685334b08627b09f45bebbf6ebaea0a209976
           </div>
         </div>
-
-     
       </div>
     </div>
   );
 }
-
-
-
